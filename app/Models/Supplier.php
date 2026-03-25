@@ -28,6 +28,7 @@ class Supplier extends Model
         'country',
         'tax_number',
         'credit_limit',
+        'opening_balance',
         'current_balance',
         'notes',
         'is_active',

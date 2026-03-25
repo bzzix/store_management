@@ -218,12 +218,25 @@
                         </div>
 
                         {{-- الرصيد الافتتاحي --}}
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-bold text-surface-700">{{ __('Initial Balance') }} <span class="text-surface-400 font-normal">({{ __('Positive = You Owe Them') }})</span></label>
+                        <div class="space-y-1.5 flex-1">
+                            <label class="text-sm font-bold text-surface-700">{{ __('Initial Balance') }}</label>
                             <div class="relative">
                                 <input type="number" 
-                                    class="w-full bg-surface-50 border {{ $errors->has('current_balance') ? 'border-red-300 ring-1 ring-red-100' : 'border-surface-200' }} rounded-xl pl-10 pr-4 py-2.5 text-sm font-display font-medium focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all" 
-                                    wire:model="current_balance" placeholder="0.00" step="0.01">
+                                    class="w-full bg-surface-50 border {{ $errors->has('opening_balance') ? 'border-red-300 ring-1 ring-red-100' : 'border-surface-200' }} rounded-xl pl-10 pr-4 py-2.5 text-sm font-display font-medium focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all disabled:opacity-50 disabled:bg-surface-100" 
+                                    wire:model="opening_balance" placeholder="0.00" step="0.01"
+                                    @if($editingSupplierId && !auth()->user()->hasRole('Super Admin')) disabled @endif>
+                                <span class="absolute left-3 top-2.5 text-surface-400 text-xs">ج.م</span>
+                            </div>
+                        </div>
+
+                        {{-- الرصيد الحالي --}}
+                        <div class="space-y-1.5 flex-1">
+                            <label class="text-sm font-bold text-surface-700">{{ __('Current Balance') }} <span class="text-surface-400 font-normal">({{ __('Positive = You Owe Them') }})</span></label>
+                            <div class="relative">
+                                <input type="number" 
+                                    class="w-full bg-surface-50 border {{ $errors->has('current_balance') ? 'border-red-300 ring-1 ring-red-100' : 'border-surface-200' }} rounded-xl pl-10 pr-4 py-2.5 text-sm font-display font-medium focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all disabled:opacity-50 disabled:bg-surface-100" 
+                                    wire:model="current_balance" placeholder="0.00" step="0.01"
+                                    @if($editingSupplierId && !auth()->user()->hasRole('Super Admin')) disabled @endif>
                                 <span class="absolute left-3 top-2.5 text-surface-400 text-xs">ج.م</span>
                             </div>
                         </div>

@@ -26,6 +26,7 @@ class CustomerForm extends Component
     public $notes;
     public $is_active = true;
     public $opening_balance = 0;
+    public $current_balance = 0;
 
     protected function rules()
     {
@@ -43,17 +44,19 @@ class CustomerForm extends Component
             'notes' => 'nullable|string',
             'is_active' => 'boolean',
             'opening_balance' => 'nullable|numeric',
+            'current_balance' => 'nullable|numeric',
         ];
     }
 
     #[On('reset-customer-form')]
     public function resetForm()
     {
-        $this->reset(['name', 'email', 'phone', 'phone_2', 'address', 'city', 'tax_number', 'customer_type', 'company_name', 'notes', 'opening_balance', 'credit_limit', 'is_active', 'customerId', 'isEdit']);
+        $this->reset(['name', 'email', 'phone', 'phone_2', 'address', 'city', 'tax_number', 'customer_type', 'company_name', 'notes', 'opening_balance', 'current_balance', 'credit_limit', 'is_active', 'customerId', 'isEdit']);
         $this->is_active = true;
         $this->customer_type = 'individual';
         $this->credit_limit = 0;
         $this->opening_balance = 0;
+        $this->current_balance = 0;
         $this->showModal = true;
     }
 
@@ -82,6 +85,7 @@ class CustomerForm extends Component
         $this->company_name = $customer->company_name;
         $this->notes = $customer->notes;
         $this->opening_balance = $customer->opening_balance;
+        $this->current_balance = $customer->current_balance;
         $this->credit_limit = $customer->credit_limit;
         $this->is_active = $customer->is_active;
 
@@ -104,9 +108,15 @@ class CustomerForm extends Component
             'company_name' => $this->company_name,
             'notes' => $this->notes,
             'opening_balance' => $this->opening_balance,
+            'current_balance' => $this->current_balance,
             'credit_limit' => $this->credit_limit,
             'is_active' => $this->is_active,
         ];
+        
+        if ($this->isEdit && !auth()->user()->hasRole('Super Admin')) {
+            unset($data['opening_balance']);
+            unset($data['current_balance']);
+        }
 
         try {
             if ($this->isEdit) {

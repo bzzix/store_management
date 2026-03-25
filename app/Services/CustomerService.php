@@ -29,7 +29,7 @@ class CustomerService
                 'company_name' => $data['customer_type'] === 'company' ? ($data['company_name'] ?? null) : null,
                 'notes' => $data['notes'] ?? null,
                 'opening_balance' => $data['opening_balance'] ?? 0,
-                'current_balance' => $data['opening_balance'] ?? 0,
+                'current_balance' => $data['current_balance'] ?? $data['opening_balance'] ?? 0,
                 'credit_limit' => $data['credit_limit'] ?? 0,
                 'is_active' => $data['is_active'] ?? true,
             ]);
@@ -45,7 +45,9 @@ class CustomerService
     {
         return DB::transaction(function () use ($customer, $data) {
             // Adjust current balance if opening balance changed
-            if (isset($data['opening_balance'])) {
+            if (isset($data['current_balance'])) {
+                $customer->current_balance = $data['current_balance'];
+            } elseif (isset($data['opening_balance'])) {
                 $diff = $data['opening_balance'] - $customer->opening_balance;
                 $customer->current_balance += $diff;
             }

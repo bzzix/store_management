@@ -138,19 +138,8 @@ class SaleInvoiceForm extends Component
     public function updatedCustomerId($value)
     {
         if ($value) {
-            // Fetch balance from the last completed invoice or opening balance
-            $lastInvoice = SaleInvoice::where('customer_id', $value)
-                ->where('status', 'completed')
-                ->latest()
-                ->first();
-
-            if ($lastInvoice) {
-                // The remaining after the last invoice (Gross Total Due - Paid)
-                $this->customer_balance = $lastInvoice->previous_balance + $lastInvoice->total_amount - $lastInvoice->paid_amount;
-            } else {
-                $customer = Customer::find($value);
-                $this->customer_balance = $customer ? (float)$customer->opening_balance : 0;
-            }
+            $customer = Customer::find($value);
+            $this->customer_balance = $customer ? (float)$customer->current_balance : 0;
         } else {
             $this->customer_balance = 0;
         }

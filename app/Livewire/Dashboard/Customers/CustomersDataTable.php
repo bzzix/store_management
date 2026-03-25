@@ -132,7 +132,7 @@ class CustomersDataTable extends DataTableComponent
     public function editCustomer($id)
     {
         abort_if(!auth()->user()->can('customers_update'), 403);
-        $this->dispatch('edit-customer-form', ['customerId' => $id]);
+        $this->dispatch('edit-customer-form', $id);
     }
 
     public function toggleStatus($id, \App\Services\CustomerService $service)

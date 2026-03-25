@@ -94,14 +94,7 @@ class PurchasesList extends Component
         if ($value) {
             $supplier = Supplier::find($value);
             if ($supplier) {
-                $lastInvoice = PurchaseInvoice::where('supplier_id', $supplier->id)
-                                              ->latest('id')
-                                              ->first();
-                if ($lastInvoice) {
-                    $this->previous_balance = $lastInvoice->total_amount - $lastInvoice->paid_amount;
-                } else {
-                    $this->previous_balance = $supplier->current_balance;
-                }
+                $this->previous_balance = $supplier->current_balance;
             } else {
                 $this->previous_balance = 0;
             }

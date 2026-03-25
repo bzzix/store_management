@@ -52,6 +52,9 @@ class Suppliers extends Component
     public ?float $credit_limit = null;
     
     #[Validate('nullable|numeric')]
+    public ?float $opening_balance = null;
+
+    #[Validate('nullable|numeric')]
     public ?float $current_balance = null;
     
     #[Validate('nullable|string|max:1000')]
@@ -84,6 +87,7 @@ class Suppliers extends Component
         $this->country = $fullSupplier->country ?? '';
         $this->tax_number = $fullSupplier->tax_number ?? '';
         $this->credit_limit = $fullSupplier->credit_limit;
+        $this->opening_balance = $fullSupplier->opening_balance;
         $this->current_balance = $fullSupplier->current_balance;
         $this->notes = $fullSupplier->notes ?? '';
         $this->is_active = (bool)$fullSupplier->is_active;
@@ -166,16 +170,18 @@ class Suppliers extends Component
                 // Update
                 $supplier = Supplier::findOrFail($this->editingSupplierId);
                 
-                // Allow balance updates during edit only if specifically intended or through dedicated process.
-                // Here we might just allow updating it directly as requested for a simple setup.
-                $data['current_balance'] = $this->current_balance ?? 0;
+                if (auth()->user()->hasRole('Super Admin')) {
+                    $data['opening_balance'] = $this->opening_balance ?? 0;
+                    $data['current_balance'] = $this->current_balance ?? 0;
+                }
                 
                 $supplier->update($data);
 
                 $this->dispatch('notify', type: 'success', message: __('Supplier updated successfully'));
             } else {
                 // Create
-                $data['current_balance'] = $this->current_balance ?? 0;
+                $data['opening_balance'] = $this->opening_balance ?? 0;
+                $data['current_balance'] = $this->current_balance ?? $data['opening_balance'];
                 $supplier = Supplier::create($data);
 
                 $this->dispatch('notify', type: 'success', message: __('Supplier created successfully'));
@@ -223,6 +229,7 @@ class Suppliers extends Component
         $this->country = '';
         $this->tax_number = '';
         $this->credit_limit = null;
+        $this->opening_balance = null;
         $this->current_balance = null;
         $this->notes = '';
         $this->is_active = true;
