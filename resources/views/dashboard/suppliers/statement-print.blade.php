@@ -78,6 +78,14 @@
             <td style="border:none;">{{ $supplier->phone }}</td>
         </tr>
         <tr>
+            <td style="border:none;" class="font-bold">الرصيد الافتتاحي:</td>
+            <td style="border:none; font-weight:bold;">{{ number_format($supplier->opening_balance, 2) }}</td>
+        </tr>
+        <tr>
+            <td style="border:none;" class="font-bold">الرصيد الحالي:</td>
+            <td style="border:none; font-weight:bold;">{{ number_format($supplier->current_balance, 2) }}</td>
+        </tr>
+        <tr>
             <td style="border:none;" class="font-bold">الفترة:</td>
             <td style="border:none;">من {{ $fromDate }} إلي {{ $toDate }}</td>
         </tr>

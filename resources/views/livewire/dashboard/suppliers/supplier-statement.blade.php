@@ -72,6 +72,14 @@
                         <span class="text-surface-400 text-sm">{{ __('Phone') }}:</span>
                         <span class="text-surface-900 font-bold font-outfit">{{ $supplier->phone }}</span>
                     </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-surface-400 text-sm">{{ __('Opening Balance') }}:</span>
+                        <span class="text-surface-900 font-bold font-outfit">{{ number_format($supplier->opening_balance, 2) }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-surface-400 text-sm">{{ __('Current Balance') }}:</span>
+                        <span class="font-bold font-outfit {{ $supplier->current_balance > 0 ? 'text-red-600' : 'text-green-600' }}">{{ number_format($supplier->current_balance, 2) }}</span>
+                    </div>
                 </div>
             </div>
 

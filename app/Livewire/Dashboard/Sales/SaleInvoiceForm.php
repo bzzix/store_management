@@ -138,8 +138,17 @@ class SaleInvoiceForm extends Component
     public function updatedCustomerId($value)
     {
         if ($value) {
-            $customer = Customer::find($value);
-            $this->customer_balance = $customer ? (float)$customer->current_balance : 0;
+            $lastInvoice = SaleInvoice::where('customer_id', $value)
+                ->where('status', 'completed')
+                ->latest()
+                ->first();
+
+            if ($lastInvoice) {
+                $this->customer_balance = (float)$lastInvoice->previous_balance + (float)$lastInvoice->total_amount - (float)$lastInvoice->paid_amount;
+            } else {
+                $customer = Customer::find($value);
+                $this->customer_balance = $customer ? (float)$customer->opening_balance : 0;
+            }
         } else {
             $this->customer_balance = 0;
         }

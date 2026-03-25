@@ -84,8 +84,13 @@ class PosCenter extends Component
     public function updatedCustomerId($value)
     {
         if ($value) {
-            $customer = Customer::find($value);
-            $this->previous_balance = $customer ? (float)$customer->current_balance : 0;
+            $lastInvoice = SaleInvoice::where('customer_id', $value)->where('status', 'completed')->latest()->first();
+            if ($lastInvoice) {
+                $this->previous_balance = (float)$lastInvoice->previous_balance + (float)$lastInvoice->total_amount - (float)$lastInvoice->paid_amount;
+            } else {
+                $customer = Customer::find($value);
+                $this->previous_balance = $customer ? (float)$customer->opening_balance : 0;
+            }
         } else {
             $this->previous_balance = 0;
         }
@@ -94,8 +99,13 @@ class PosCenter extends Component
     public function updatedSupplierId($value)
     {
         if ($value) {
-            $supplier = Supplier::find($value);
-            $this->previous_balance = $supplier ? (float)$supplier->current_balance : 0;
+            $lastInvoice = PurchaseInvoice::where('supplier_id', $value)->where('status', 'completed')->latest()->first();
+            if ($lastInvoice) {
+                $this->previous_balance = (float)$lastInvoice->previous_balance + (float)$lastInvoice->total_amount - (float)$lastInvoice->paid_amount;
+            } else {
+                $supplier = Supplier::find($value);
+                $this->previous_balance = $supplier ? (float)$supplier->opening_balance : 0;
+            }
         } else {
             $this->previous_balance = 0;
         }
