@@ -18,9 +18,9 @@ class Supplier extends Model
         
         static::creating(function ($supplier) {
             $opening = (float)($supplier->opening_balance ?? 0);
-            $supplier->total_invoices = $opening > 0 ? $opening : 0;
-            $supplier->total_paid = $opening < 0 ? abs($opening) : 0;
-            $supplier->current_balance = (float)$supplier->total_invoices - (float)$supplier->total_paid;
+            $supplier->total_invoices = $opening; // Starts with opening balance (signed)
+            $supplier->total_paid = 0;           // Actual payments sum starts at 0
+            $supplier->current_balance = $opening;
         });
 
         static::updating(function ($supplier) {
@@ -145,13 +145,10 @@ class Supplier extends Model
         $totalInvoices = (float) $this->purchaseInvoices()->where('status', 'completed')->sum('total_amount');
         $totalPaid = (float) $this->payments()->where('status', 'completed')->sum('amount');
         
-        $initialSpent = $this->opening_balance > 0 ? (float)$this->opening_balance : 0;
-        $initialPaid = $this->opening_balance < 0 ? abs((float)$this->opening_balance) : 0;
-
         $this->updateQuietly([
-            'total_invoices' => $initialSpent + $totalInvoices,
-            'total_paid' => $initialPaid + $totalPaid,
-            'current_balance' => ($initialSpent + $totalInvoices) - ($initialPaid + $totalPaid)
+            'total_invoices' => (float)$this->opening_balance + $totalInvoices,
+            'total_paid' => $totalPaid,
+            'current_balance' => ((float)$this->opening_balance + $totalInvoices) - $totalPaid
         ]);
     }
 

@@ -66,11 +66,8 @@ class RecalculateBalances extends Command
 
             $totalPaid = (float)$receipts - (float)$disbursements;
 
-            $initialSpent = $customer->opening_balance > 0 ? (float)$customer->opening_balance : 0;
-            $initialPaid = $customer->opening_balance < 0 ? abs((float)$customer->opening_balance) : 0;
-
-            $finalSpent = $initialSpent + (float)$totalSales;
-            $finalPaid = $initialPaid + $totalPaid;
+            $finalSpent = (float)$customer->opening_balance + (float)$totalSales;
+            $finalPaid = $totalPaid;
 
             $customer->updateQuietly([
                 'total_invoices' => $finalSpent,
@@ -112,11 +109,8 @@ class RecalculateBalances extends Command
 
             $totalPaid = (float)$disbursements - (float)$receipts;
 
-            $initialSpent = $supplier->opening_balance > 0 ? (float)$supplier->opening_balance : 0;
-            $initialPaid = $supplier->opening_balance < 0 ? abs((float)$supplier->opening_balance) : 0;
-
-            $finalSpent = $initialSpent + (float)$totalPurchases;
-            $finalPaid = $initialPaid + $totalPaid;
+            $finalSpent = (float)$supplier->opening_balance + (float)$totalPurchases;
+            $finalPaid = $totalPaid;
 
             $supplier->updateQuietly([
                 'total_invoices' => $finalSpent,
