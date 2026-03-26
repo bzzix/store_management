@@ -11,6 +11,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Supplier extends Model
 {
     use HasFactory, SoftDeletes;
+    
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($supplier) {
+            $opening = (float)($supplier->opening_balance ?? 0);
+            $supplier->total_invoices = $opening > 0 ? $opening : 0;
+            $supplier->total_paid = $opening < 0 ? abs($opening) : 0;
+            $supplier->current_balance = (float)$supplier->total_invoices - (float)$supplier->total_paid;
+        });
+
+        static::updating(function ($supplier) {
+            if ($supplier->isDirty('opening_balance')) {
+                // When opening balance changes, recalculate everything
+                $supplier->recalculateBalance();
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -30,6 +49,8 @@ class Supplier extends Model
         'credit_limit',
         'opening_balance',
         'current_balance',
+        'total_invoices',
+        'total_paid',
         'notes',
         'is_active',
     ];
@@ -42,6 +63,9 @@ class Supplier extends Model
     protected $casts = [
         'credit_limit' => 'decimal:2',
         'current_balance' => 'decimal:2',
+        'opening_balance' => 'decimal:2',
+        'total_invoices' => 'decimal:2',
+        'total_paid' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 
@@ -111,6 +135,24 @@ class Supplier extends Model
     public function updateBalance(float $amount): void
     {
         $this->increment('current_balance', $amount);
+    }
+
+    /**
+     * Recalculate financial balances from scratch
+     */
+    public function recalculateBalance(): void
+    {
+        $totalInvoices = (float) $this->purchaseInvoices()->where('status', 'completed')->sum('total_amount');
+        $totalPaid = (float) $this->payments()->where('status', 'completed')->sum('amount');
+        
+        $initialSpent = $this->opening_balance > 0 ? (float)$this->opening_balance : 0;
+        $initialPaid = $this->opening_balance < 0 ? abs((float)$this->opening_balance) : 0;
+
+        $this->updateQuietly([
+            'total_invoices' => $initialSpent + $totalInvoices,
+            'total_paid' => $initialPaid + $totalPaid,
+            'current_balance' => ($initialSpent + $totalInvoices) - ($initialPaid + $totalPaid)
+        ]);
     }
 
     /**

@@ -29,7 +29,9 @@ class CustomerService
                 'company_name' => $data['customer_type'] === 'company' ? ($data['company_name'] ?? null) : null,
                 'notes' => $data['notes'] ?? null,
                 'opening_balance' => $data['opening_balance'] ?? 0,
-                'current_balance' => $data['current_balance'] ?? $data['opening_balance'] ?? 0,
+                'total_invoices' => 0,
+                'total_paid' => 0,
+                'current_balance' => $data['opening_balance'] ?? 0,
                 'credit_limit' => $data['credit_limit'] ?? 0,
                 'is_active' => $data['is_active'] ?? true,
             ]);
@@ -45,11 +47,10 @@ class CustomerService
     {
         return DB::transaction(function () use ($customer, $data) {
             // Adjust current balance if opening balance changed
-            if (isset($data['current_balance'])) {
-                $customer->current_balance = $data['current_balance'];
-            } elseif (isset($data['opening_balance'])) {
-                $diff = $data['opening_balance'] - $customer->opening_balance;
-                $customer->current_balance += $diff;
+            if (isset($data['opening_balance'])) {
+                $customer->opening_balance = $data['opening_balance'];
+                // Recalculate current_balance to ensure integrity
+                $customer->current_balance = $customer->opening_balance + $customer->total_invoices - $customer->total_paid;
             }
 
             $customer->update([
@@ -99,6 +100,42 @@ class CustomerService
     }
 
     /**
+     * Add invoice amount to customer totals
+     */
+    public function addInvoiceAmount(Customer $customer, float $amount): void
+    {
+        $customer->increment('total_invoices', $amount);
+        $customer->increment('current_balance', $amount);
+    }
+
+    /**
+     * Subtract invoice amount from customer totals
+     */
+    public function subtractInvoiceAmount(Customer $customer, float $amount): void
+    {
+        $customer->decrement('total_invoices', $amount);
+        $customer->decrement('current_balance', $amount);
+    }
+
+    /**
+     * Add payment amount to customer totals
+     */
+    public function addPayment(Customer $customer, float $amount): void
+    {
+        $customer->increment('total_paid', $amount);
+        $customer->decrement('current_balance', $amount);
+    }
+
+    /**
+     * Subtract payment amount from customer totals
+     */
+    public function subtractPayment(Customer $customer, float $amount): void
+    {
+        $customer->decrement('total_paid', $amount);
+        $customer->increment('current_balance', $amount);
+    }
+
+    /**
      * Get statement data for a customer
      */
     public function getStatementData(Customer $customer, $fromDate, $toDate)
@@ -143,6 +180,7 @@ class CustomerService
                 'id' => $invoice->invoice_number,
                 'number' => $invoice->invoice_number,
                 'type' => 'invoice',
+                'description' => __('Sale Invoice') . " #{$invoice->invoice_number}",
                 'date' => $invoice->invoice_date->format('Y-m-d 00:00:01'), // Ensure invoice comes before payment on same day
                 'value' => $invoice->total_amount,
                 'addition' => $invoice->total_amount,
@@ -159,15 +197,20 @@ class CustomerService
             ->get();
 
         $paymentItems = $paymentsRaw->map(function ($payment) {
+            $isVoucher = $payment->paymentable_id === null;
             return [
                 'id' => $payment->payment_number,
                 'number' => $payment->payment_number,
-                'type' => 'payment',
-                'date' => $payment->payment_date->format('Y-m-d 23:59:59'), // Default to end of day if no time
+                'type' => $isVoucher ? 'voucher' : 'payment',
+                'voucher_type' => $payment->voucher_type,
+                'description' => $isVoucher 
+                    ? ($payment->voucher_type === 'receipt' ? __('Receipt Voucher') : __('Disbursement Voucher')) . " #{$payment->payment_number}"
+                    : __('Payment for Invoice') . " #{$payment->payment_number}",
+                'date' => $payment->payment_date->format('Y-m-d 23:59:59'),
                 'value' => $payment->amount,
                 'addition' => 0,
                 'deduction' => $payment->amount,
-                'url' => '#',
+                'url' => $isVoucher ? route('dashboard.payments.print', $payment) : '#',
                 'created_at' => $payment->created_at,
             ];
         });

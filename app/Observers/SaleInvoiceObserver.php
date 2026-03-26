@@ -27,9 +27,8 @@ class SaleInvoiceObserver
         $this->updateNumberWithId($invoice, 'SAL', 'invoice_number');
 
         DB::transaction(function () use ($invoice) {
-            // 1. Adjust customer balance: Increment by full invoice amount (debt creation)
-            // Payment will be handled by PaymentObserver via SalesInvoiceService
-            $invoice->customer->increment('current_balance', (float)$invoice->total_amount);
+            // 1. Adjust customer balance: Increment by full invoice amount (debt creation) via Service
+            app(\App\Services\CustomerService::class)->addInvoiceAmount($invoice->customer, (float)$invoice->total_amount);
 
             // 2. Log activity
             $this->logActivity($invoice, 'created', "تم إصدار فاتورة مبيعات جديدة رقم: {$invoice->invoice_number}");
@@ -54,8 +53,8 @@ class SaleInvoiceObserver
                     $item->delete();
                 }
 
-                // 3. Revert customer balance: Decrement by full invoice amount
-                $invoice->customer->decrement('current_balance', (float)$invoice->total_amount);
+                // 3. Revert customer balance debt via Service
+                app(\App\Services\CustomerService::class)->subtractInvoiceAmount($invoice->customer, (float)$invoice->total_amount);
 
                 $this->logActivity($invoice, 'cancelled', "تم إلغاء فاتورة المبيعات رقم: {$invoice->invoice_number}");
             });
@@ -71,13 +70,18 @@ class SaleInvoiceObserver
 
             if ($oldCustomerId === $newCustomerId) {
                 $diff = $newTotal - $oldTotal;
-                if ($diff != 0) {
-                    $invoice->customer->increment('current_balance', $diff);
+                if ($diff > 0) {
+                    app(\App\Services\CustomerService::class)->addInvoiceAmount($invoice->customer, $diff);
+                } elseif ($diff < 0) {
+                    app(\App\Services\CustomerService::class)->subtractInvoiceAmount($invoice->customer, abs($diff));
                 }
             } else {
                 // Customer changed: Revert old total from old customer, apply new total to new customer
-                Customer::find($oldCustomerId)?->decrement('current_balance', $oldTotal);
-                Customer::find($newCustomerId)?->increment('current_balance', $newTotal);
+                $oldCustomer = Customer::find($oldCustomerId);
+                if ($oldCustomer) {
+                    app(\App\Services\CustomerService::class)->subtractInvoiceAmount($oldCustomer, $oldTotal);
+                }
+                app(\App\Services\CustomerService::class)->addInvoiceAmount($invoice->customer, $newTotal);
                 
                 // Note: If there were payments, they are usually linked to the invoice.
                 // PaymentObserver handles balance per payment. If paymentable_id doesn't change, 
@@ -108,10 +112,8 @@ class SaleInvoiceObserver
                     $item->delete();
                 }
 
-                // 3. Revert customer balance debt: Decrement total invoice amount
-                // Note: PaymentObserver deleted already incremented the balance by the paid amount.
-                // This decrements by the full invoice amount (the original debt).
-                $invoice->customer->decrement('current_balance', (float)$invoice->total_amount);
+                // 3. Revert customer balance debt via Service
+                app(\App\Services\CustomerService::class)->subtractInvoiceAmount($invoice->customer, (float)$invoice->total_amount);
             });
         }
 

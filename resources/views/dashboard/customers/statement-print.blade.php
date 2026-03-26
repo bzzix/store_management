@@ -118,10 +118,11 @@
                 <tr>
                     <td class="text-center">
                         <div class="font-bold" style="font-size: 8px;">{{ $item['number'] }}</div>
+                        <div style="font-size: 7px;">{{ $item['description'] }}</div>
                         <div style="font-size: 7px;">{{ \Carbon\Carbon::parse($item['date'])->format('m/d H:i') }}</div>
                     </td>
                     <td class="text-center">{{ number_format($item['previous_balance'], 2) }}</td>
-                    <td class="text-center">{{ $item['type'] === 'invoice' ? number_format($item['value'], 2) : '-' }}</td>
+                    <td class="text-center">{{ $item['addition'] > 0 ? number_format($item['addition'], 2) : '-' }}</td>
                     <td class="text-center">{{ $item['deduction'] > 0 ? number_format($item['deduction'], 2) : '-' }}</td>
                     <td class="text-center font-bold">{{ number_format($item['balance'], 2) }}</td>
                 </tr>

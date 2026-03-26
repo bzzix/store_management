@@ -12,6 +12,42 @@ use Illuminate\Support\Facades\Auth;
 class SupplierService
 {
     /**
+     * Add invoice amount to supplier totals
+     */
+    public function addInvoiceAmount(Supplier $supplier, float $amount): void
+    {
+        $supplier->increment('total_invoices', $amount);
+        $supplier->increment('current_balance', $amount);
+    }
+
+    /**
+     * Subtract invoice amount from supplier totals
+     */
+    public function subtractInvoiceAmount(Supplier $supplier, float $amount): void
+    {
+        $supplier->decrement('total_invoices', $amount);
+        $supplier->decrement('current_balance', $amount);
+    }
+
+    /**
+     * Add payment amount to supplier totals
+     */
+    public function addPayment(Supplier $supplier, float $amount): void
+    {
+        $supplier->increment('total_paid', $amount);
+        $supplier->decrement('current_balance', $amount);
+    }
+
+    /**
+     * Subtract payment amount from supplier totals
+     */
+    public function subtractPayment(Supplier $supplier, float $amount): void
+    {
+        $supplier->decrement('total_paid', $amount);
+        $supplier->increment('current_balance', $amount);
+    }
+
+    /**
      * Get statement data for a supplier
      */
     public function getStatementData(Supplier $supplier, $fromDate, $toDate)
@@ -74,16 +110,20 @@ class SupplierService
             ->get();
 
         $paymentItems = $paymentsRaw->map(function ($payment) {
+            $isVoucher = $payment->paymentable_id === null;
             return [
                 'id' => $payment->payment_number,
                 'number' => $payment->payment_number,
-                'type' => 'payment',
-                'description' => __('Payment'),
+                'type' => $isVoucher ? 'voucher' : 'payment',
+                'voucher_type' => $payment->voucher_type,
+                'description' => $isVoucher 
+                    ? ($payment->voucher_type === 'receipt' ? __('Receipt Voucher') : __('Disbursement Voucher')) 
+                    : __('Payment'),
                 'date' => $payment->payment_date->format('Y-m-d 23:59:59'),
                 'value' => $payment->amount,
                 'addition' => 0,
                 'deduction' => $payment->amount,
-                'url' => '#',
+                'url' => $isVoucher ? route('dashboard.payments.print', $payment) : '#',
                 'created_at' => $payment->created_at,
             ];
         });

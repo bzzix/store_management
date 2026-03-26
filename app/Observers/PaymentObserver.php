@@ -35,9 +35,21 @@ class PaymentObserver
             $invoice->updatePaymentStatus();
         }
 
-        // Update payer balance (Customer or Supplier)
+        // Update payer balance (Customer or Supplier) via Service
         if ($payment->payer) {
-            $payment->payer->decrement('current_balance', $payment->amount);
+            $isCustomer = $payment->payer_type === \App\Models\Customer::class;
+            $service = $isCustomer 
+                ? app(\App\Services\CustomerService::class) 
+                : app(\App\Services\SupplierService::class);
+            
+            $isRefund = ($isCustomer && $payment->voucher_type === 'disbursement') || 
+                        (!$isCustomer && $payment->voucher_type === 'receipt');
+
+            if ($isRefund) {
+                $service->subtractPayment($payment->payer, (float)$payment->amount);
+            } else {
+                $service->addPayment($payment->payer, (float)$payment->amount);
+            }
         }
 
         \Log::info('Payment created', [
@@ -65,7 +77,15 @@ class PaymentObserver
             }
 
             if ($payment->payer) {
-                $payment->payer->decrement('current_balance', $difference);
+                $service = $payment->payer_type === \App\Models\Customer::class 
+                    ? app(\App\Services\CustomerService::class) 
+                    : app(\App\Services\SupplierService::class);
+                
+                if ($difference > 0) {
+                    $service->addPayment($payment->payer, abs($difference));
+                } elseif ($difference < 0) {
+                    $service->subtractPayment($payment->payer, abs($difference));
+                }
             }
         }
 
@@ -87,9 +107,23 @@ class PaymentObserver
             $invoice->updatePaymentStatus();
         }
 
-        // Reverse payment from payer balance
+        // Reverse payment from payer balance via Service
         if ($payment->payer) {
-            $payment->payer->increment('current_balance', $payment->amount);
+            $isCustomer = $payment->payer_type === \App\Models\Customer::class;
+            $service = $isCustomer 
+                ? app(\App\Services\CustomerService::class) 
+                : app(\App\Services\SupplierService::class);
+            
+            $isRefund = ($isCustomer && $payment->voucher_type === 'disbursement') || 
+                        (!$isCustomer && $payment->voucher_type === 'receipt');
+
+            if ($isRefund) {
+                // Deleting a refund adds to the total paid and subtracts from balance
+                $service->addPayment($payment->payer, (float)$payment->amount);
+            } else {
+                // Deleting a payment subtracts from the total paid and adds back to balance
+                $service->subtractPayment($payment->payer, (float)$payment->amount);
+            }
         }
 
         \Log::warning('Payment deleted', [
@@ -111,7 +145,11 @@ class PaymentObserver
         }
 
         if ($payment->payer) {
-            $payment->payer->increment('current_balance', $payment->amount);
+            $service = $payment->payer_type === \App\Models\Customer::class 
+                ? app(\App\Services\CustomerService::class) 
+                : app(\App\Services\SupplierService::class);
+            
+            $service->subtractPayment($payment->payer, (float)$payment->amount);
         }
 
         \Log::warning('Payment cancelled', [

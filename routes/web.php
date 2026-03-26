@@ -58,6 +58,12 @@ Route::middleware([
         Route::get('/{invoice}/print', 'saleInvoicePrint')->name('print')->middleware('can:sales_view');
     });
 
+    // 💰 سندات القبض والصرف
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', 'paymentsIndex')->name('index');
+        Route::get('/{payment}/print', 'paymentVoucherPrint')->name('print');
+    });
+
     // 📊 التقارير
     Route::get('/reports', 'reports')->name('reports')->middleware('can:admin_view');
 

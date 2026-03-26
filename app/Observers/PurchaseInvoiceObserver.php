@@ -44,7 +44,7 @@ class PurchaseInvoiceObserver
         */
 
         if ($invoice->total_amount > 0) {
-            $invoice->supplier->updateBalance($invoice->total_amount);
+            app(\App\Services\SupplierService::class)->addInvoiceAmount($invoice->supplier, (float)$invoice->total_amount);
         }
 
         \Log::info('Purchase invoice created', [
@@ -69,8 +69,15 @@ class PurchaseInvoiceObserver
 
         // Update supplier balance if total changed
         if ($invoice->wasChanged('total_amount')) {
-            $difference = $invoice->total_amount - $invoice->getOriginal('total_amount');
-            $invoice->supplier->updateBalance($difference);
+            $oldTotal = (float)$invoice->getOriginal('total_amount');
+            $newTotal = (float)$invoice->total_amount;
+            $diff = $newTotal - $oldTotal;
+
+            if ($diff > 0) {
+                app(\App\Services\SupplierService::class)->addInvoiceAmount($invoice->supplier, $diff);
+            } elseif ($diff < 0) {
+                app(\App\Services\SupplierService::class)->subtractInvoiceAmount($invoice->supplier, abs($diff));
+            }
         }
     }
 
@@ -183,8 +190,8 @@ class PurchaseInvoiceObserver
                 $payment->delete();
             }
 
-            // 3. Revert supplier balance: Decrement what we owed them
-            $invoice->supplier->updateBalance(-$invoice->total_amount);
+            // 3. Revert supplier balance: Decrement what we owed them via Service
+            app(\App\Services\SupplierService::class)->subtractInvoiceAmount($invoice->supplier, (float)$invoice->total_amount);
         });
 
         \Log::warning('Purchase invoice deleted', [

@@ -62,6 +62,12 @@ class CustomersDataTable extends DataTableComponent
             Column::make(__('Phone'), 'phone')
                 ->sortable()
                 ->searchable(),
+            Column::make(__('Total Sales'), 'total_invoices')
+                ->format(fn($value) => number_format($value, 2))
+                ->sortable(),
+            Column::make(__('Total Paid'), 'total_paid')
+                ->format(fn($value) => number_format($value, 2))
+                ->sortable(),
             Column::make(__('Type'), 'customer_type')
                 ->format(fn($value) => $value === 'company' ? __('Company') : __('Individual'))
                 ->sortable(),

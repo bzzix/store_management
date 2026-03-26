@@ -139,6 +139,7 @@
                                         <span class="text-xs font-black text-surface-900 font-outfit bg-surface-100 px-2 py-0.5 rounded-lg border border-surface-200/50 mb-1 leading-none">
                                             {{ $item['number'] }}
                                         </span>
+                                        <span class="text-[10px] font-bold text-primary-600 font-cairo mb-1">{{ $item['description'] }}</span>
                                         <div class="flex items-center gap-1.5 text-[10px] text-surface-400 font-outfit">
                                             <span>{{ \Carbon\Carbon::parse($item['date'])->format('Y-m-d') }}</span>
                                             <span class="opacity-50">|</span>
@@ -149,8 +150,8 @@
                                 <td class="px-4 py-4 text-sm text-surface-500 font-outfit text-center">
                                     {{ number_format($item['previous_balance'], 2) }}
                                 </td>
-                                <td class="px-4 py-4 text-sm text-surface-900 font-outfit text-center font-medium">
-                                    {{ $item['type'] === 'purchase' ? number_format($item['value'], 2) : '-' }}
+                                <td class="px-4 py-4 text-sm font-bold @if($item['addition'] > 0) text-red-600 bg-red-50/30 @else text-surface-300 @endif font-outfit text-center">
+                                    {{ $item['addition'] > 0 ? number_format($item['addition'], 2) : '-' }}
                                 </td>
                                 <td class="px-4 py-4 text-sm font-bold @if($item['deduction'] > 0) text-green-600 bg-green-50/30 @else text-surface-300 @endif font-outfit text-center">
                                     {{ $item['deduction'] > 0 ? number_format($item['deduction'], 2) : '-' }}

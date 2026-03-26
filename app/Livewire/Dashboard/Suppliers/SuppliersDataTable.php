@@ -80,6 +80,14 @@ class SuppliersDataTable extends DataTableComponent
                 ->searchable()
                 ->collapseOnMobile(),
 
+            Column::make(__('Total Purchases'), 'total_invoices')
+                ->format(fn($value) => number_format($value, 2) . ' ج.م')
+                ->sortable(),
+
+            Column::make(__('Total Paid'), 'total_paid')
+                ->format(fn($value) => number_format($value, 2) . ' ج.م')
+                ->sortable(),
+
             Column::make(__('Credit Limit'), 'credit_limit')
                 ->sortable()
                 ->format(function($value) {

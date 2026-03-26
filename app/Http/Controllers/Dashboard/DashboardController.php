@@ -786,4 +786,31 @@ class DashboardController extends Controller
         $invoice->load(['items.product', 'supplier', 'user']);
         return view('dashboard.pos.purchase-print', compact('invoice'));
     }
+
+    /**
+     * عرض صفحة سندات القبض والصرف
+     */
+    public function paymentsIndex(): View
+    {
+        $pageType = 'payments_index';
+        $title = __('Payment & Receipt Vouchers');
+        $SEOData = new SEOData(
+            title: $title,
+            description: 'إدارة سندات القبض والصرف للعملاء والموردين',
+            author: get_setting('appName', 'أولاد عبد الستار'),
+            site_name: get_setting('appName', 'أولاد عبد الستار'),
+            image: get_setting('appLogo'),
+        );
+
+        return view('dashboard.payments.index', compact('title', 'pageType', 'SEOData'));
+    }
+
+    /**
+     * طباعة سند قبض أو صرف (80mm)
+     */
+    public function paymentVoucherPrint(\App\Models\Payment $payment)
+    {
+        $payment->load(['payer', 'user']);
+        return view('dashboard.payments.voucher-print', compact('payment'));
+    }
 }
