@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             
             // 5. Master Data
             CategorySeeder::class,
-            SupplierSeeder::class,
+            //SupplierSeeder::class,
             CustomerSeeder::class,
             
             // 6. Products
