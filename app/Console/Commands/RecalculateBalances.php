@@ -54,7 +54,10 @@ class RecalculateBalances extends Command
             // Handle receipts (standard) and disbursements (refunds)
             $receipts = Payment::where('payer_type', Customer::class)
                 ->where('payer_id', $customer->id)
-                ->where('voucher_type', '!=', 'disbursement')
+                ->where(function($q) {
+                    $q->where('voucher_type', '!=', 'disbursement')
+                      ->orWhereNull('voucher_type');
+                })
                 ->where('status', '!=', 'cancelled')
                 ->sum('amount');
             
@@ -97,7 +100,10 @@ class RecalculateBalances extends Command
             // Handle disbursements (standard) and receipts (refunds)
             $disbursements = Payment::where('payer_type', Supplier::class)
                 ->where('payer_id', $supplier->id)
-                ->where('voucher_type', '!=', 'receipt')
+                ->where(function($q) {
+                    $q->where('voucher_type', '!=', 'receipt')
+                      ->orWhereNull('voucher_type');
+                })
                 ->where('status', '!=', 'cancelled')
                 ->sum('amount');
             

@@ -68,7 +68,8 @@ class PurchaseInvoiceObserver
         */
 
         // Update supplier balance if total changed
-        if ($invoice->wasChanged('total_amount')) {
+        // skip if the invoice was just created in this request to avoid double-counting
+        if (!$invoice->wasRecentlyCreated && $invoice->wasChanged('total_amount')) {
             $oldTotal = (float)$invoice->getOriginal('total_amount');
             $newTotal = (float)$invoice->total_amount;
             $diff = $newTotal - $oldTotal;

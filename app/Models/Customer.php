@@ -172,8 +172,22 @@ class Customer extends Model
      */
     public function recalculateBalance(): void
     {
-        $totalInvoices = (float) $this->saleInvoices()->where('status', 'completed')->sum('total_amount');
-        $totalPaid = (float) $this->payments()->where('status', 'completed')->sum('amount');
+        $totalInvoices = (float) $this->saleInvoices()->where('status', '!=', 'cancelled')->sum('total_amount');
+        
+        $receipts = $this->payments()
+            ->where('status', '!=', 'cancelled')
+            ->where(function($q) {
+                $q->where('voucher_type', '!=', 'disbursement')
+                  ->orWhereNull('voucher_type');
+            })
+            ->sum('amount');
+            
+        $disbursements = $this->payments()
+            ->where('status', '!=', 'cancelled')
+            ->where('voucher_type', 'disbursement')
+            ->sum('amount');
+            
+        $totalPaid = (float)$receipts - (float)$disbursements;
         
         $this->updateQuietly([
             'total_invoices' => (float)$this->opening_balance + $totalInvoices,

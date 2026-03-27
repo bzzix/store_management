@@ -142,8 +142,22 @@ class Supplier extends Model
      */
     public function recalculateBalance(): void
     {
-        $totalInvoices = (float) $this->purchaseInvoices()->where('status', 'completed')->sum('total_amount');
-        $totalPaid = (float) $this->payments()->where('status', 'completed')->sum('amount');
+        $totalInvoices = (float) $this->purchaseInvoices()->where('status', '!=', 'cancelled')->sum('total_amount');
+        
+        $disbursements = $this->payments()
+            ->where('status', '!=', 'cancelled')
+            ->where(function($q) {
+                $q->where('voucher_type', '!=', 'receipt')
+                  ->orWhereNull('voucher_type');
+            })
+            ->sum('amount');
+            
+        $receipts = $this->payments()
+            ->where('status', '!=', 'cancelled')
+            ->where('voucher_type', 'receipt')
+            ->sum('amount');
+            
+        $totalPaid = (float)$disbursements - (float)$receipts;
         
         $this->updateQuietly([
             'total_invoices' => (float)$this->opening_balance + $totalInvoices,

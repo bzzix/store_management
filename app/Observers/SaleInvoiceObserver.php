@@ -62,7 +62,7 @@ class SaleInvoiceObserver
         }
 
         // 2. Handle customer_id or total_amount change (e.g. during edit)
-        if ($invoice->isDirty(['customer_id', 'total_amount'])) {
+        if (!$invoice->wasRecentlyCreated && $invoice->wasChanged(['customer_id', 'total_amount'])) {
             $oldCustomerId = (int)$invoice->getOriginal('customer_id');
             $newCustomerId = (int)$invoice->customer_id;
             $oldTotal = (float)$invoice->getOriginal('total_amount');
