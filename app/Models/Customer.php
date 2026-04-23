@@ -18,7 +18,7 @@ class Customer extends Model
         
         static::creating(function ($customer) {
             $opening = (float)($customer->opening_balance ?? 0);
-            $customer->total_invoices = $opening; // Starts with opening balance (signed)
+            $customer->total_invoices = 0; // Starts at 0, not opening balance
             $customer->total_paid = 0;           // Actual payments sum starts at 0
             $customer->current_balance = $opening;
         });
@@ -56,7 +56,7 @@ class Customer extends Model
         'total_paid',
         'is_active',
     ];
-
+    
     /**
      * The attributes that should be cast.
      *
@@ -190,7 +190,7 @@ class Customer extends Model
         $totalPaid = (float)$receipts - (float)$disbursements;
         
         $this->updateQuietly([
-            'total_invoices' => (float)$this->opening_balance + $totalInvoices,
+            'total_invoices' => $totalInvoices,
             'total_paid' => $totalPaid,
             'current_balance' => ((float)$this->opening_balance + $totalInvoices) - $totalPaid
         ]);

@@ -69,7 +69,7 @@ class PricingService
         ];
 
         $percentage = $percentages[$saleMethodCode] ?? 0;
-        $profit = $basePrice * $percentage;
+        $profit = ($basePrice + 2) * $percentage;
 
         // تطبيق حدود الربح للكاش فقط (أقل ربح 15 وأعلى ربح 30)
         if ($saleMethodCode === 'cash') {

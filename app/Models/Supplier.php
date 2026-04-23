@@ -18,7 +18,7 @@ class Supplier extends Model
         
         static::creating(function ($supplier) {
             $opening = (float)($supplier->opening_balance ?? 0);
-            $supplier->total_invoices = $opening; // Starts with opening balance (signed)
+            $supplier->total_invoices = 0; // Starts at 0, not opening balance
             $supplier->total_paid = 0;           // Actual payments sum starts at 0
             $supplier->current_balance = $opening;
         });
@@ -160,7 +160,7 @@ class Supplier extends Model
         $totalPaid = (float)$disbursements - (float)$receipts;
         
         $this->updateQuietly([
-            'total_invoices' => (float)$this->opening_balance + $totalInvoices,
+            'total_invoices' => $totalInvoices,
             'total_paid' => $totalPaid,
             'current_balance' => ((float)$this->opening_balance + $totalInvoices) - $totalPaid
         ]);

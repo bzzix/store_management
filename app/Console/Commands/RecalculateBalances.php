@@ -73,9 +73,9 @@ class RecalculateBalances extends Command
             $finalPaid = $totalPaid;
 
             $customer->updateQuietly([
-                'total_invoices' => $finalSpent,
+                'total_invoices' => (float)$totalSales,
                 'total_paid' => $finalPaid,
-                'current_balance' => $finalSpent - $finalPaid,
+                'current_balance' => ((float)$customer->opening_balance + (float)$totalSales) - $finalPaid,
             ]);
 
             $bar->advance();
@@ -119,9 +119,9 @@ class RecalculateBalances extends Command
             $finalPaid = $totalPaid;
 
             $supplier->updateQuietly([
-                'total_invoices' => $finalSpent,
+                'total_invoices' => (float)$totalPurchases,
                 'total_paid' => $finalPaid,
-                'current_balance' => $finalSpent - $finalPaid,
+                'current_balance' => ((float)$supplier->opening_balance + (float)$totalPurchases) - $finalPaid,
             ]);
 
             $bar->advance();
