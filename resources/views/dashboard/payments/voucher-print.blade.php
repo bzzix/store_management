@@ -2,99 +2,143 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>{{ __('Voucher') }} - {{ $payment->payment_number }}</title>
+    <title>{{ __('Voucher') }} #{{ $payment->payment_number }}</title>
     <style>
-        @page { size: 80mm auto; margin: 0; }
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
         body {
-            width: 72mm; margin: 0 auto; padding: 2mm 0;
-            font-family: 'Arial', sans-serif; font-size: 11px; line-height: 1.3; color: #000;
+            width: 72mm;
+            margin: 0 auto;
+            padding: 1mm 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 10.5px;
+            line-height: 1.1;
+            color: #000;
+            -webkit-print-color-adjust: exact;
+            box-sizing: border-box;
         }
         .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
         .font-bold { font-weight: bold; }
-        .header { margin-bottom: 3mm; border-bottom: 0.2mm solid #000; padding-bottom: 2mm; }
-        .header h1 { font-size: 15px; margin: 0; }
-        .voucher-title { font-size: 14px; text-decoration: underline; margin: 2mm 0; }
-        .info-table { width: 100%; border-collapse: collapse; margin: 3mm 0; }
-        .info-table td { padding: 1.5mm 0; vertical-align: top; }
-        .amount-box {
-            border: 0.5mm solid #000; padding: 3mm; margin: 4mm 0;
-            background: #f9f9f9; font-size: 14px; font-weight: bold;
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 2mm; table-layout: fixed; }
+        th, td { border: 0.1mm solid #000; padding: 3px 2px; word-break: break-word; }
+        
+        .no-border td { border: none !important; }
+        .header { margin-bottom: 2mm; border-bottom: 0.1mm solid #000; padding-bottom: 1mm; }
+        .header h1 { font-size: 14px; margin: 0; font-weight: bold; }
+        .header h2 { font-size: 11px; margin: 2px 0; font-weight: normal; }
+        
+        .items-table th { background: #f5f5f5; font-weight: bold; font-size: 10px; }
+        
+        .totals-grid td { font-weight: normal; }
+        .totals-grid .label-bold { font-weight: bold; }
+        .important-total { font-weight: bold; font-size: 11.5px; border: 0.3mm solid #000 !important; }
+        
+        .footer { margin-top: 2mm; font-size: 10px; border-top: 0.1mm solid #000; padding-top: 1mm; }
+        
+        @media print {
+            .no-print { display: none; }
         }
-        .footer { margin-top: 5mm; border-top: 0.2mm solid #000; padding-top: 2mm; font-size: 10px; }
-        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
-    <div class="no-print text-center" style="margin-bottom: 5mm;">
-        <button onclick="window.print()" style="padding: 10px 20px; background: #000; color: #fff; border: none; cursor: pointer;">
+    @php
+        $isCustomer = $payment->payer_type === \App\Models\Customer::class;
+        $isRefund = ($isCustomer && $payment->voucher_type === 'disbursement') || 
+                    (!$isCustomer && $payment->voucher_type === 'receipt');
+
+        $currentBalance = $payment->payer ? (float)$payment->payer->current_balance : 0;
+        
+        if ($isRefund) {
+            $previousBalance = $currentBalance - (float)$payment->amount;
+        } else {
+            $previousBalance = $currentBalance + (float)$payment->amount;
+        }
+    @endphp
+
+    <div class="no-print text-center" style="margin-bottom: 10px;">
+        <button onclick="window.print()" style="padding: 5px 15px; background: #000; color: #fff; border: none; cursor: pointer;">
             {{ __('Print') }}
         </button>
     </div>
 
     <div class="header text-center">
         @if(get_setting('appLogo'))
-            <img src="{{ get_setting('appLogo') }}" style="max-height: 60px; margin-bottom: 2px;">
+            <img src="{{ get_setting('appLogo') }}" style="max-height: 60px; margin-bottom: 2px; display: block; margin: 0 auto;">
         @else
-            <h1>{{ get_setting('appName', 'أولاد عبد الستار') }}</h1>
+            <h1>{{ get_setting('appName', 'أولاد عبدالستار') }}</h1>
         @endif
-        <div class="voucher-title font-bold">
-            {{ $payment->voucher_type === 'receipt' ? 'سند قبض نقدية' : 'سند صرف نقدية' }}
-        </div>
+        <h2>إدارة / {{ get_setting('appManagerName', 'محمود حسن') }}</h2>
     </div>
 
-    <table class="info-table">
+    {{-- Info Table --}}
+    <table>
         <tr>
-            <td width="30%" class="font-bold">رقم السند:</td>
-            <td>{{ $payment->payment_number }}</td>
+            <td colspan="4" class="text-center font-bold" style="font-size: 11px;">التاريخ : {{ $payment->payment_date->format('Y/m/d H:i') }}</td>
         </tr>
         <tr>
-            <td class="font-bold">التاريخ:</td>
-            <td>{{ $payment->payment_date->format('Y-m-d') }}</td>
+            <td colspan="4" class="text-center font-bold" style="font-size: 13px;">
+                {{ $payment->voucher_type === 'receipt' ? 'سند قبض نقدية رقم' : 'سند صرف نقدية رقم' }} : {{ $payment->payment_number }}
+            </td>
         </tr>
-        <tr>
-            <td class="font-bold">{{ $payment->voucher_type === 'receipt' ? 'استلمنا من:' : 'صرفنا إلى:' }}</td>
-            <td>{{ $payment->payer->name }}</td>
+        <tr style="font-size: 9.5px;">
+            <td class="label-bold" style="width: 13%;">الاسم:</td>
+            <td style="width: 37%;">{{ $payment->payer?->name ?? '---' }}</td>
+            <td class="label-bold" style="width: 13%;">المستخدم:</td>
+            <td style="width: 37%;">{{ $payment->user?->name ?? '---' }}</td>
         </tr>
-        <tr>
-            <td class="font-bold">طريقة الدفع:</td>
+        <tr style="font-size: 9.5px;">
+            <td class="label-bold">الدفع:</td>
             <td>{{ __($payment->payment_method) }}</td>
+            <td class="label-bold">المرجع:</td>
+            <td>{{ $payment->reference_number ?? '---' }}</td>
         </tr>
-        @if($payment->reference_number)
-        <tr>
-            <td class="font-bold">رقم المرجع:</td>
-            <td>{{ $payment->reference_number }}</td>
-        </tr>
-        @endif
     </table>
 
-    <div class="amount-box text-center">
-        مبلغ وقدره: {{ number_format($payment->amount, 2) }} ج.م
-    </div>
-
+    {{-- Description Table --}}
     @if($payment->notes)
-    <div style="margin: 3mm 0;">
-        <span class="font-bold">وذلك عن:</span>
-        <p style="margin: 1mm 0; white-space: pre-wrap;">{{ $payment->notes }}</p>
-    </div>
+    <table>
+        <tr>
+            <td class="label-bold" style="width: 20%; background: #f5f5f5;">البيان:</td>
+            <td>{{ $payment->notes }}</td>
+        </tr>
+    </table>
     @endif
 
-    <div style="margin-top: 8mm; display: flex; justify-content: space-between;">
-        <div class="text-center" style="width: 45%;">
-            <div class="font-bold">المستلم</div>
-            <div style="margin-top: 10mm; border-top: 0.1mm solid #000;"></div>
-        </div>
-        <div class="text-center" style="width: 45%;">
-            <div class="font-bold">المحاسب</div>
-            <div style="margin-top: 10mm; border-top: 0.1mm solid #000;"></div>
-        </div>
-    </div>
+    {{-- Totals Grid --}}
+    <table class="totals-grid">
+        <tr>
+            <td rowspan="3" class="text-center" style="vertical-align: middle; font-size: 9px; border: 1px solid #000; width: 40%;">
+                <div class="label-bold" style="margin-bottom: 5px;">التوقيع</div>
+                <br><br><br>
+                -------------------
+            </td>
+            <td class="label-bold" style="width: 30%;">الرصيد السابق</td>
+            <td class="text-center font-bold" style="width: 30%;">{{ number_format($previousBalance, 2) }}</td>
+        </tr>
+        <tr>
+            <td class="label-bold">المدفوع</td>
+            <td class="text-center font-bold">{{ number_format($payment->amount, 2) }}</td>
+        </tr>
+        <tr>
+            <td class="important-total">المتبقي</td>
+            <td class="text-center important-total">{{ number_format($currentBalance, 2) }}</td>
+        </tr>
+    </table>
 
     <div class="footer text-center">
-        <div>{{ get_setting('appAddress') }}</div>
-        <div class="font-bold">{{ get_setting('appMobile') }}</div>
-        <div style="font-size: 8px; margin-top: 2mm;">طبع بواسطة: {{ $payment->user->name }} | {{ now()->format('Y-m-d H:i') }}</div>
+        <div>{{ get_setting('appAddress', 'كفر الشيخ - الرياض - أبوشريف - طريق الحامول مصنع السكر') }}</div>
+        <div class="font-bold">{{ get_setting('appMobile', '01062226955 - 01029666024') }} - {{ get_setting('appPhone', '0473896884') }}</div>
     </div>
 
-    <script>window.onload = function() { window.print(); }</script>
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
 </body>
 </html>
