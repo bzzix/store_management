@@ -68,51 +68,55 @@
                 </div>
 
                 @if(!$isReadOnly)
-                    {{-- Product Search --}}
-                    <div class="relative mb-6">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                            <svg wire:loading.remove wire:target="searchProduct" class="w-5 h-5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            <svg wire:loading wire:target="searchProduct" class="animate-spin h-5 w-5 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </div>
-                        <input type="text" wire:model.live.debounce.300ms="searchProduct" placeholder="{{ __('Search products by name, SKU or barcode...') }}" 
-                            class="w-full pr-12 pl-4 py-3 rounded-2xl border-2 border-primary-100 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none text-lg">
-                        
-                        @if(!empty($searchResults))
-                            <div class="absolute z-50 w-full mt-2 bg-white border border-surface-100 rounded-2xl shadow-xl max-h-80 overflow-y-auto">
-                                @foreach($searchResults as $product)
-                                    <button type="button" wire:click="addProduct({{ $product->id }})" class="w-full px-5 py-3 text-right hover:bg-primary-50 flex items-center justify-between border-b border-surface-50 last:border-0 transition-colors">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center font-bold text-surface-500 italic">
-                                                @if($product->main_image)
-                                                    <img src="{{ Storage::url($product->main_image) }}" class="w-full h-full object-cover rounded-xl">
-                                                @else
-                                                    {{ substr($product->name, 0, 1) }}
-                                                @endif
-                                            </div>
-                                            <div>
-                                                <div class="font-bold text-surface-900">{{ $product->name }}</div>
-                                                <div class="text-xs text-surface-500">SKU: {{ $product->sku }} | Barcode: {{ $product->barcode }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-left">
-                                            <div class="text-primary-600 font-bold">{{ number_format($product->current_base_price, 0) }} {{ __('EGP') }}</div>
-                                            @php
-                                                $availableStock = $product->warehouseStock->sum('quantity');
-                                            @endphp
-                                            <div class="text-xs {{ $availableStock > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">
-                                                {{ __('Stock') }}: {{ number_format($availableStock, 0) }} {{ $product->base_unit }}
-                                            </div>
-                                        </div>
-                                    </button>
-                                @endforeach
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                <svg wire:loading.remove wire:target="searchProduct" class="w-5 h-5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <svg wire:loading wire:target="searchProduct" class="animate-spin h-5 w-5 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
                             </div>
-                        @endif
-                        @error('items') <div class="mt-2 text-sm text-red-500 font-bold">{{ $message }}</div> @enderror
-                        @error('items.*') <div class="mt-2 text-sm text-red-500 font-bold">{{ $message }}</div> @enderror
+                            <input type="text" wire:model.live.debounce.300ms="searchProduct" placeholder="{{ __('Search products...') }}" 
+                                class="w-full pr-12 pl-4 py-3 rounded-2xl border-2 border-primary-100 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none text-lg">
+                            
+                            @if(!empty($searchResults))
+                                <div class="absolute z-50 w-full mt-2 bg-white border border-surface-100 rounded-2xl shadow-xl max-h-80 overflow-y-auto text-right">
+                                    @foreach($searchResults as $product)
+                                        <button type="button" wire:click="addProduct({{ $product->id }})" class="w-full px-5 py-3 text-right hover:bg-primary-50 flex items-center justify-between border-b border-surface-50 last:border-0 transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center font-bold text-surface-500 italic">
+                                                    @if($product->main_image)
+                                                        <img src="{{ Storage::url($product->main_image) }}" class="w-full h-full object-cover rounded-xl">
+                                                    @else
+                                                        {{ substr($product->name, 0, 1) }}
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-surface-900">{{ $product->name }}</div>
+                                                    <div class="text-xs text-surface-500">SKU: {{ $product->sku }} | Barcode: {{ $product->barcode }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-left">
+                                                <div class="text-primary-600 font-bold">{{ number_format($product->current_base_price, 0) }} {{ __('EGP') }}</div>
+                                                @php
+                                                    $availableStock = $product->warehouseStock->sum('quantity');
+                                                @endphp
+                                                <div class="text-xs {{ $availableStock > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">
+                                                    {{ __('Stock') }}: {{ number_format($availableStock, 0) }} {{ $product->base_unit }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                        <button type="button" wire:click="addCustomItem" class="px-6 py-3.5 bg-surface-100 text-surface-700 font-bold rounded-2xl hover:bg-primary-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            عنصر مخصص
+                        </button>
                     </div>
+                    @error('items') <div class="mb-4 text-sm text-red-500 font-bold">{{ $message }}</div> @enderror
                 @endif
 
                 {{-- Items Table --}}
@@ -135,7 +139,12 @@
                                 <tr class="hover:bg-surface-50/30 transition-colors">
                                     <td class="px-4 py-4 text-surface-400 font-medium">{{ $index + 1 }}</td>
                                     <td class="px-4 py-4">
-                                        <div class="font-bold text-surface-900">{{ $item['product_name'] }}</div>
+                                        @if($item['product_id'])
+                                            <div class="font-bold text-surface-900">{{ $item['product_name'] }}</div>
+                                        @else
+                                            <input type="text" wire:model.live="items.{{ $index }}.product_name" @if($isReadOnly) disabled @endif 
+                                                class="w-full px-2 py-1.5 rounded-lg border border-primary-100 focus:border-primary-500 outline-none font-bold text-sm bg-primary-50/30" placeholder="اسم المنتج المخصص">
+                                        @endif
                                     </td>
                                     <td class="px-4 py-4">
                                         <select wire:model.live="items.{{ $index }}.product_unit_id" @if($isReadOnly) disabled @endif class="w-full px-2 py-1.5 rounded-lg border border-surface-200 focus:ring-2 focus:ring-primary-500/20 outline-none text-xs @error('items.'.$index.'.product_unit_id') border-red-500 @enderror disabled:bg-surface-50">
@@ -156,7 +165,8 @@
                                         {{ number_format($item['profit'], 0) }}
                                     </td>
                                     <td class="px-4 py-4 text-left font-bold text-surface-900 border-r border-surface-50">
-                                        {{ number_format($item['total'], 0) }}
+                                        <input type="number" step="0.01" wire:model.live="items.{{ $index }}.total" @if($isReadOnly) disabled @endif 
+                                            class="w-full px-3 py-1.5 rounded-lg border border-surface-200 focus:ring-2 focus:ring-primary-500/20 outline-none font-bold text-center disabled:bg-surface-50">
                                     </td>
                                     <td class="px-4 py-4 text-center">
                                         @if(!$isReadOnly)

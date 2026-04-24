@@ -136,7 +136,7 @@ class PosCenter extends Component
                 ? (new PricingService())->calculate($product->current_base_price, $this->sale_method)['final_price']
                 : $product->current_cost_price ?? 0;
 
-            $this->items[] = [
+            array_unshift($this->items, [
                 'id' => $product->id,
                 'name' => $product->name,
                 'barcode' => $product->barcode,
@@ -144,11 +144,27 @@ class PosCenter extends Component
                 'quantity' => 1,
                 'price' => $price,
                 'total' => $price,
-            ];
+                'is_custom' => false,
+            ]);
         }
 
         $this->calculateTotals();
         $this->dispatch('item-added');
+    }
+
+    public function addCustomItem()
+    {
+        array_unshift($this->items, [
+            'id' => null,
+            'name' => '',
+            'barcode' => null,
+            'unit' => '-',
+            'quantity' => 1,
+            'price' => 0,
+            'total' => 0,
+            'is_custom' => true,
+        ]);
+        $this->calculateTotals();
     }
 
     public function removeFromCart($index)
@@ -174,6 +190,14 @@ class PosCenter extends Component
     {
         $this->items[$index]['price'] = (float)$price;
         $this->items[$index]['total'] = $this->items[$index]['quantity'] * $this->items[$index]['price'];
+        $this->calculateTotals();
+    }
+
+    public function updateItemTotal($index, $total)
+    {
+        $this->items[$index]['total'] = (float)$total;
+        $quantity = (float)($this->items[$index]['quantity'] ?: 1);
+        $this->items[$index]['price'] = (float)$total / $quantity;
         $this->calculateTotals();
     }
 

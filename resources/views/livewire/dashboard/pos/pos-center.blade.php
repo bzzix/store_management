@@ -251,6 +251,11 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <button type="button" wire:click="addCustomItem" class="w-full py-3 bg-surface-100 text-surface-700 font-bold rounded-2xl hover:bg-primary-600 hover:text-white transition-all flex items-center justify-center gap-2 text-xs border border-surface-200 shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            {{ __('إضافة عنصر مخصص') }}
+                        </button>
                     </div>
 
                     {{-- Cart Items --}}
@@ -259,7 +264,11 @@
                             <div class="p-4 hover:bg-white transition-colors group">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="flex-1">
-                                        <h5 class="text-sm font-extrabold text-surface-900 text-right">{{ $item['name'] }}</h5>
+                                        @if($item['id'])
+                                            <h5 class="text-sm font-extrabold text-surface-900 text-right">{{ $item['name'] }}</h5>
+                                        @else
+                                            <input type="text" wire:model.live="items.{{ $index }}.name" class="w-full bg-primary-50/50 border border-primary-200 rounded-lg px-2 py-1 text-xs font-bold focus:ring-2 focus:ring-primary-500/20 outline-none text-right" placeholder="اسم منتج مخصص">
+                                        @endif
                                         <div class="flex items-center gap-2 mt-2">
                                             <input type="number" step="any" 
                                                 wire:change="updateQuantity({{ $index }}, $event.target.value)" 
@@ -276,7 +285,10 @@
                                         <button wire:click="removeFromCart({{ $index }})" class="p-1.5 text-surface-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
-                                        <span class="text-sm font-black text-surface-900 mt-2">{{ number_format($item['total'], 2) }}</span>
+                                        <input type="number" step="0.01" 
+                                            wire:change="updateItemTotal({{ $index }}, $event.target.value)" 
+                                            value="{{ $item['total'] }}" 
+                                            class="text-sm font-black text-surface-900 mt-2 bg-transparent border-none text-left p-0 focus:ring-0 w-24">
                                     </div>
                                 </div>
                             </div>

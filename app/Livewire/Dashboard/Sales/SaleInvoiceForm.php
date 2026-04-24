@@ -197,7 +197,7 @@ class SaleInvoiceForm extends Component
         $pricing = app(PricingService::class)->safeCalculate($product->current_base_price, $this->sale_method_code);
         $unitPrice = $pricing['final_price'];
 
-        $this->items[] = [
+        array_unshift($this->items, [
             'product_id' => $product->id,
             'product_name' => $product->name,
             'product_unit_id' => $defaultUnit?->id,
@@ -208,11 +208,30 @@ class SaleInvoiceForm extends Component
             'cost_price' => $product->current_cost_price,
             'profit' => ($unitPrice - $product->current_cost_price),
             'total' => $unitPrice,
-        ];
+            'is_custom' => false,
+        ]);
 
         $this->calculateTotals();
         $this->searchProduct = '';
         $this->searchResults = [];
+    }
+
+    public function addCustomItem()
+    {
+        array_unshift($this->items, [
+            'product_id' => null,
+            'product_name' => '',
+            'product_unit_id' => null,
+            'units' => [],
+            'quantity' => 1,
+            'unit_price' => 0,
+            'base_unit_price' => 0,
+            'cost_price' => 0,
+            'profit' => 0,
+            'total' => 0,
+            'is_custom' => true,
+        ]);
+        $this->calculateTotals();
     }
 
     public function removeItem($index)
@@ -224,17 +243,22 @@ class SaleInvoiceForm extends Component
 
     public function updatedItems($value, $key)
     {
-        // key format: 0.quantity or 0.unit_price
         $parts = explode('.', $key);
         if (count($parts) === 2) {
             $index = $parts[0];
             $field = $parts[1];
 
-            if ($field === 'unit_price' || $field === 'quantity') {
-                $this->items[$index]['profit'] = ($this->items[$index]['unit_price'] - $this->items[$index]['cost_price']) * $this->items[$index]['quantity'];
+            if ($field === 'total') {
+                $quantity = (float)($this->items[$index]['quantity'] ?: 1);
+                $this->items[$index]['unit_price'] = (float)$this->items[$index]['total'] / $quantity;
+            } elseif ($field === 'unit_price' || $field === 'quantity') {
+                $this->items[$index]['total'] = (float)$this->items[$index]['unit_price'] * (float)$this->items[$index]['quantity'];
             }
 
-            $this->calculateItemTotal($index);
+            // Recalculate profit
+            $this->items[$index]['profit'] = ($this->items[$index]['unit_price'] - $this->items[$index]['cost_price']) * $this->items[$index]['quantity'];
+
+            $this->calculateTotals();
         }
     }
 
