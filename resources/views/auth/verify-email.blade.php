@@ -20,7 +20,7 @@
             </div>
 
             @if (session('status') == 'verification-link-sent')
-                <div class="mb-6 font-bold text-sm text-success-600 bg-success-50 p-4 rounded-xl border border-success-100">
+                <div class="mb-6 font-bold text-sm p-4 rounded-xl border" style="color: var(--color-success-600); background-color: var(--color-success-50); border-color: var(--color-success-600);">
                     {{ __('تم إرسال رابط تحقق جديد إلى عنوان البريد الإلكتروني الذي قدمته في إعدادات ملفك الشخصي.') }}
                 </div>
             @endif
@@ -28,7 +28,7 @@
             <div class="space-y-4">
                 <form method="POST" action="{{ route('verification.send') }}">
                     @csrf
-                    <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-black py-4 px-6 rounded-2xl shadow-lg shadow-primary-200 transition-all duration-300 transform active:scale-[0.98]">
+                    <button type="submit" class="w-full btn-primary font-black py-4 px-6 rounded-2xl transition-all duration-300 transform active:scale-[0.98]">
                         {{ __('إعادة إرسال بريد التحقق') }}
                     </button>
                 </form>

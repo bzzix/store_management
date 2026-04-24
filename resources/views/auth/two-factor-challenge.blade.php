@@ -64,7 +64,7 @@
                         {{ __('استخدام رمز المصادقة') }}
                     </button>
 
-                    <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-black py-3 px-8 rounded-2xl shadow-lg shadow-primary-200 transition-all duration-300 transform active:scale-[0.98]">
+                    <button type="submit" class="btn-primary font-black py-3 px-8 rounded-2xl transition-all duration-300 transform active:scale-[0.98]">
                         {{ __('دخول') }}
                     </button>
                 </div>

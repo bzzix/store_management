@@ -44,6 +44,12 @@
             --color-surface-700: #334155;
             --color-surface-800: #1e293b;
             --color-surface-900: #0f172a;
+
+            /* 4. Success/Danger */
+            --color-success-50: #f0fdf4;
+            --color-success-600: #16a34a;
+            --color-danger-50: #fef2f2;
+            --color-danger-600: #dc2626;
         }
 
         body {
@@ -58,6 +64,21 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary-600) !important;
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-700) !important;
+        }
+
+        input:focus {
+            border-color: var(--color-primary-500) !important;
+            ring-color: var(--color-primary-500) !important;
         }
     </style>
 </head>
