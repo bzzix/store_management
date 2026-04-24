@@ -139,7 +139,12 @@ class SaleInvoiceForm extends Component
     {
         if ($value) {
             $customer = Customer::find($value);
-            $this->customer_balance = $customer ? (float)$customer->current_balance : 0;
+            if ($customer) {
+                $customer->recalculateBalance();
+                $this->customer_balance = (float)$customer->current_balance;
+            } else {
+                $this->customer_balance = 0;
+            }
         } else {
             $this->customer_balance = 0;
         }

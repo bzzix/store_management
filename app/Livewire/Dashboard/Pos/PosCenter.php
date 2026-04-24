@@ -84,12 +84,12 @@ class PosCenter extends Component
     public function updatedCustomerId($value)
     {
         if ($value) {
-            $lastInvoice = SaleInvoice::where('customer_id', $value)->where('status', 'completed')->latest()->first();
-            if ($lastInvoice) {
-                $this->previous_balance = (float)$lastInvoice->previous_balance + (float)$lastInvoice->total_amount - (float)$lastInvoice->paid_amount;
+            $customer = Customer::find($value);
+            if ($customer) {
+                $customer->recalculateBalance();
+                $this->previous_balance = (float)$customer->current_balance;
             } else {
-                $customer = Customer::find($value);
-                $this->previous_balance = $customer ? (float)$customer->opening_balance : 0;
+                $this->previous_balance = 0;
             }
         } else {
             $this->previous_balance = 0;
@@ -99,12 +99,12 @@ class PosCenter extends Component
     public function updatedSupplierId($value)
     {
         if ($value) {
-            $lastInvoice = PurchaseInvoice::where('supplier_id', $value)->where('status', 'completed')->latest()->first();
-            if ($lastInvoice) {
-                $this->previous_balance = (float)$lastInvoice->previous_balance + (float)$lastInvoice->total_amount - (float)$lastInvoice->paid_amount;
+            $supplier = Supplier::find($value);
+            if ($supplier) {
+                $supplier->recalculateBalance();
+                $this->previous_balance = (float)$supplier->current_balance;
             } else {
-                $supplier = Supplier::find($value);
-                $this->previous_balance = $supplier ? (float)$supplier->opening_balance : 0;
+                $this->previous_balance = 0;
             }
         } else {
             $this->previous_balance = 0;
@@ -236,6 +236,8 @@ class PosCenter extends Component
             $type = $this->mode;
 
             $this->items = [];
+            $this->customer_id = null;
+            $this->supplier_id = null;
             $this->resetFinancials();
             $this->dispatch('notify', ['type' => 'success', 'message' => __('Transaction completed successfully')]);
             
@@ -257,7 +259,7 @@ class PosCenter extends Component
         $service = app(\App\Services\SalesInvoiceService::class);
         
         $customer = Customer::find($this->customer_id);
-        $previousBalance = $customer ? (float)$customer->current_balance : 0;
+        $freshPreviousBalance = $customer ? (float)$customer->current_balance : 0;
         
         $invoiceData = [
             'customer_id' => $this->customer_id,
@@ -272,7 +274,7 @@ class PosCenter extends Component
             'shipping_cost' => $this->shipping_cost,
             'total_amount' => $this->total,
             'paid_amount' => $this->paid_amount,
-            'previous_balance' => $this->previous_balance,
+            'previous_balance' => $freshPreviousBalance,
             'car_number' => $this->car_number,
             'driver_name' => $this->driver_name,
             'notes' => $this->notes,
@@ -303,7 +305,7 @@ class PosCenter extends Component
         $service = app(\App\Services\InvoiceService::class);
         
         $supplier = Supplier::find($this->supplier_id);
-        $previousBalance = $supplier ? (float)$supplier->current_balance : 0;
+        $freshPreviousBalance = $supplier ? (float)$supplier->current_balance : 0;
 
         $invoiceData = [
             'supplier_id' => $this->supplier_id,
@@ -316,7 +318,7 @@ class PosCenter extends Component
             'discount_amount' => $this->discount,
             'total_amount' => $this->total,
             'paid_amount' => $this->paid_amount,
-            'previous_balance' => $this->previous_balance,
+            'previous_balance' => $freshPreviousBalance,
             'status' => 'completed',
             'notes' => $this->notes,
             'payment_method' => 'cash',

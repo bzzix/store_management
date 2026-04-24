@@ -93,7 +93,12 @@ class PurchasesList extends Component
     {
         if ($value) {
             $supplier = Supplier::find($value);
-            $this->previous_balance = $supplier ? (float)$supplier->current_balance : 0;
+            if ($supplier) {
+                $supplier->recalculateBalance();
+                $this->previous_balance = (float)$supplier->current_balance;
+            } else {
+                $this->previous_balance = 0;
+            }
         } else {
             $this->previous_balance = 0;
         }

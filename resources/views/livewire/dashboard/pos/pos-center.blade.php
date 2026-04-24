@@ -311,10 +311,10 @@
                         
                         <div class="flex items-center justify-between pt-4 pb-2 border-t-2 border-dashed border-surface-200 mt-2">
                             <div class="flex flex-col">
-                                <span class="text-sm font-black text-surface-900">{{ __('الصافي') }}</span>
-                                <span class="text-[10px] text-surface-400 font-bold bg-surface-100 px-2 py-0.5 rounded-md mt-1 w-fit">{{ __('الإجمالي المستحق: ') }} <span dir="ltr">{{ number_format($this->total_due, 2) }}</span></span>
+                                <span class="text-sm font-black text-surface-900">{{ __('الإجمالي المستحق') }}</span>
+                                <span class="text-[10px] text-surface-400 font-bold bg-surface-100 px-2 py-0.5 rounded-md mt-1 w-fit">{{ __('صافي الفاتورة: ') }} <span dir="ltr">{{ number_format($this->total, 2) }}</span></span>
                             </div>
-                            <span class="text-3xl font-black {{ $mode === 'sale' ? 'text-primary-600' : 'text-success-600' }}" dir="ltr">{{ number_format($this->total, 2) }}</span>
+                            <span class="text-3xl font-black {{ $mode === 'sale' ? 'text-primary-600' : 'text-success-600' }}" dir="ltr">{{ number_format($this->total_due, 2) }}</span>
                         </div>
                         
                         <div class="pt-3 border-t border-surface-200/60 space-y-2">
