@@ -113,13 +113,13 @@
             @foreach($invoice->items as $index => $item)
             @php
                 $qty = (float)$item->quantity;
-                $weight = $qty * ($item->product->weight ?? 1); // Assuming weight per unit exists, default to 1
+                $weight = $qty * ($item->is_custom ? 1 : ($item->product->weight ?? 1)); // Assuming weight per unit exists, default to 1
                 $totalPackages += $qty;
                 $totalWeight += $weight;
             @endphp
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td>{{ $item->product->name }}</td>
+                <td>{{ $item->is_custom ? $item->custom_name : ($item->product->name ?? '---') }}</td>
                 <td>{{ $qty }}</td>
                 <td>{{ number_format($weight, 2) }} كجم</td>
                 <td>{{ number_format($item->unit_price, 2) }}</td>

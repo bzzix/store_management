@@ -104,7 +104,7 @@
             @foreach($invoice->items as $index => $item)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $item->product->name }}</td>
+                    <td>{{ $item->is_custom ? $item->custom_name : ($item->product->name ?? 'منتج غير موجود') }}</td>
                     <td class="text-center">{{ number_format($item->quantity, 0) }}</td>
                     <td class="text-center">{{ number_format($item->unit_price, 2) }}</td>
                     <td class="text-center">{{ number_format($item->total, 2) }}</td>
