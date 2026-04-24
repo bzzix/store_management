@@ -38,7 +38,6 @@ class RecalculateBalances extends Command
 
         $this->info('Recalculation completed successfully.');
     }
-
     protected function recalculateCustomers()
     {
         $customers = Customer::all();

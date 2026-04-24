@@ -19,16 +19,16 @@ class SettingsSeeder extends Seeder
     set_setting('appInvoiceGenerate', true);
     set_setting('AppGetInstallments', 'everyYear');
     set_setting('appDisc', 'للأعلاف والأسمدة الزراعية');
-    set_setting('appLogo', config('app.url').'/filemanager/uploads/store-logo.png');
-    set_setting('appMiniLogo', config('app.url').'/filemanager/uploads/store-mini-logo.png');
-    set_setting('appDarkLogo', config('app.url').'/filemanager/uploads/store-dark-logo.png');
-    set_setting('appMiniDarkLogo', config('app.url').'/filemanager/uploads/store-mini-dark-logo.png');
-    set_setting('appIcon', config('app.url').'/filemanager/uploads/store-icon.png');
+    set_setting('appLogo', config('app.url').'/storage/branding/ETNvqx8K0CjhmnVIntWEmujNXeXxrcKD7DtOL0bl.png');
+    set_setting('appMiniLogo', config('app.url').'/storage/branding/ETNvqx8K0CjhmnVIntWEmujNXeXxrcKD7DtOL0bl.png');
+    set_setting('appDarkLogo', config('app.url').'/storage/branding/ETNvqx8K0CjhmnVIntWEmujNXeXxrcKD7DtOL0bl.png');
+    set_setting('appMiniDarkLogo', config('app.url').'/storage/branding/ETNvqx8K0CjhmnVIntWEmujNXeXxrcKD7DtOL0bl.png');
+    set_setting('appIcon', config('app.url').'/storage/branding/YP73ZWG3RWMntYG7oa185v0r6MtqRdAv3CWIONlL.png');
     set_setting('appMail', 'bzzixs@gmail.com');
     set_setting('appMobile', '01000944804 - 01062332549');
     set_setting('appPhone', '0473905067');
     set_setting('appHomepage', '1');
-    set_setting('appAddress', 'كفر الشيخ - الرياض - أبوشريف - طريق الحامول مصنع السكر');
+    set_setting('appAddress', 'كفر الشيخ - الرياض - قرية 4 الخرجين - خلف المدرسة الإبتدائية');
     set_setting('appNewAccount', '1');
     set_setting('appDefaultRole', 'user');
     set_setting('appPolicy', '<h1 style="box-sizing: border-box; font-family: NotoKufiArabic;">سياسة الخصوصية والحماية</h1>

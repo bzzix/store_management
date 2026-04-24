@@ -16,8 +16,7 @@ class SupplierService
      */
     public function addInvoiceAmount(Supplier $supplier, float $amount): void
     {
-        $supplier->increment('total_invoices', $amount);
-        $supplier->increment('current_balance', $amount);
+        $supplier->recalculateBalance();
     }
 
     /**
@@ -25,8 +24,7 @@ class SupplierService
      */
     public function subtractInvoiceAmount(Supplier $supplier, float $amount): void
     {
-        $supplier->decrement('total_invoices', $amount);
-        $supplier->decrement('current_balance', $amount);
+        $supplier->recalculateBalance();
     }
 
     /**
@@ -34,8 +32,7 @@ class SupplierService
      */
     public function addPayment(Supplier $supplier, float $amount): void
     {
-        $supplier->increment('total_paid', $amount);
-        $supplier->decrement('current_balance', $amount);
+        $supplier->recalculateBalance();
     }
 
     /**
@@ -43,8 +40,7 @@ class SupplierService
      */
     public function subtractPayment(Supplier $supplier, float $amount): void
     {
-        $supplier->decrement('total_paid', $amount);
-        $supplier->increment('current_balance', $amount);
+        $supplier->recalculateBalance();
     }
 
     /**

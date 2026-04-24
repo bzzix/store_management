@@ -104,8 +104,7 @@ class CustomerService
      */
     public function addInvoiceAmount(Customer $customer, float $amount): void
     {
-        $customer->increment('total_invoices', $amount);
-        $customer->increment('current_balance', $amount);
+        $customer->recalculateBalance();
     }
 
     /**
@@ -113,8 +112,7 @@ class CustomerService
      */
     public function subtractInvoiceAmount(Customer $customer, float $amount): void
     {
-        $customer->decrement('total_invoices', $amount);
-        $customer->decrement('current_balance', $amount);
+        $customer->recalculateBalance();
     }
 
     /**
@@ -122,8 +120,7 @@ class CustomerService
      */
     public function addPayment(Customer $customer, float $amount): void
     {
-        $customer->increment('total_paid', $amount);
-        $customer->decrement('current_balance', $amount);
+        $customer->recalculateBalance();
     }
 
     /**
@@ -131,8 +128,7 @@ class CustomerService
      */
     public function subtractPayment(Customer $customer, float $amount): void
     {
-        $customer->decrement('total_paid', $amount);
-        $customer->increment('current_balance', $amount);
+        $customer->recalculateBalance();
     }
 
     /**
