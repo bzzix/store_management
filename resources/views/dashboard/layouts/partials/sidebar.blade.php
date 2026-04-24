@@ -196,12 +196,22 @@
 
     <!-- User Profile -->
     <div
-        class="mt-4 p-2 bg-surface-50 rounded-xl border border-surface-200/50 flex items-center gap-3 cursor-pointer hover:bg-surface-100 transition-colors">
+        class="mt-4 p-2 bg-surface-50 rounded-xl border border-surface-200/50 flex items-center gap-3 hover:bg-surface-100 transition-colors group">
         <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'User') }}&background=3b82f6&color=fff&rounded=true&bold=true"
             class="w-10 h-10 rounded-full flex-shrink-0" alt="User Avatar">
         <div class="flex-1 min-w-0 profile-details">
             <p class="text-sm font-bold text-surface-900 truncate">{{ auth()->user()->name ?? 'مدير النظام' }}</p>
             <p class="text-[11px] text-primary-600 font-bold truncate">{{ auth()->user()->roles->first()->display_name ?? 'Super Admin' }}</p>
         </div>
+        
+        <!-- Logout Button -->
+        <form method="POST" action="{{ route('logout') }}" x-data class="profile-details">
+            @csrf
+            <button type="submit" @click.prevent="$root.submit();" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors group-hover:opacity-100" title="{{ __('Logout') }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+            </button>
+        </form>
     </div>
 </aside>
