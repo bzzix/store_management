@@ -13,7 +13,7 @@ class SaleInvoiceItemObserver
     public function created(SaleInvoiceItem $item): void
     {
         $invoice = $item->saleInvoice;
-        if (!$invoice) return;
+        if (!$invoice || $item->is_custom || !$item->product) return;
 
         // Adjust stock only if it's not a draft and we are tracking inventory
         if ($invoice->status !== 'draft' && $item->product->track_inventory) {
@@ -34,7 +34,7 @@ class SaleInvoiceItemObserver
     public function updated(SaleInvoiceItem $item): void
     {
         $invoice = $item->saleInvoice;
-        if (!$invoice) return;
+        if (!$invoice || $item->is_custom || !$item->product) return;
 
         if ($invoice->status !== 'draft' && $item->product->track_inventory) {
             $stock = ProductWarehouse::where('product_id', $item->product_id)
@@ -62,7 +62,7 @@ class SaleInvoiceItemObserver
     public function deleted(SaleInvoiceItem $item): void
     {
         $invoice = $item->saleInvoice;
-        if (!$invoice) return;
+        if (!$invoice || $item->is_custom || !$item->product) return;
 
         // Restore stock when item is deleted (e.g. during invoice update or cancellation)
         if ($invoice->status !== 'draft' && $item->product->track_inventory) {

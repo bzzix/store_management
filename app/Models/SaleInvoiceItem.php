@@ -25,6 +25,8 @@ class SaleInvoiceItem extends Model
         'tax_amount',
         'discount_amount',
         'total',
+        'is_custom',
+        'custom_name',
         'notes',
     ];
 
@@ -40,6 +42,7 @@ class SaleInvoiceItem extends Model
         'tax_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'is_custom' => 'boolean',
     ];
 
     /**

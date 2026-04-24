@@ -256,7 +256,11 @@ class SaleInvoiceForm extends Component
             }
 
             // Recalculate profit
-            $this->items[$index]['profit'] = ($this->items[$index]['unit_price'] - $this->items[$index]['cost_price']) * $this->items[$index]['quantity'];
+            if (!empty($this->items[$index]['is_custom'])) {
+                $this->items[$index]['profit'] = (float)$this->items[$index]['total'] * 0.025;
+            } else {
+                $this->items[$index]['profit'] = ($this->items[$index]['unit_price'] - $this->items[$index]['cost_price']) * $this->items[$index]['quantity'];
+            }
 
             $this->calculateTotals();
         }
@@ -298,8 +302,8 @@ class SaleInvoiceForm extends Component
             'warehouse_id' => 'required|exists:warehouses,id',
             'invoice_date' => 'required|date',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required_with:items|exists:products,id',
-            'items.*.product_unit_id' => 'required_with:items|exists:product_units,id',
+            'items.*.product_id' => 'nullable|exists:products,id',
+            'items.*.product_unit_id' => 'nullable|exists:product_units,id',
             'items.*.quantity' => 'required_with:items|numeric|min:0.001',
             'items.*.unit_price' => 'required_with:items|numeric|min:0',
         ], [

@@ -43,17 +43,27 @@ class SalesInvoiceService
 
             // 2. Add items
             foreach ($items as $itemData) {
-                $product = Product::findOrFail($itemData['product_id']);
+                $isCustom = empty($itemData['product_id']);
+                
+                if (!$isCustom) {
+                    $product = Product::findOrFail($itemData['product_id']);
+                    $costPrice = (float)($itemData['cost_price'] ?? $product->current_cost_price);
+                } else {
+                    // Custom Item Profit = 2.5% of total
+                    $costPrice = (float)$itemData['unit_price'] * 0.975;
+                }
                 
                 $invoice->items()->create([
-                    'product_id' => $itemData['product_id'],
-                    'product_unit_id' => $itemData['product_unit_id'],
+                    'product_id' => $itemData['product_id'] ?? null,
+                    'product_unit_id' => $itemData['product_unit_id'] ?? null,
                     'quantity' => $itemData['quantity'],
-                    'cost_price' => $product->current_cost_price,
+                    'cost_price' => $costPrice,
                     'unit_price' => $itemData['unit_price'],
                     'tax_amount' => $itemData['tax_amount'] ?? 0,
                     'discount_amount' => $itemData['discount_amount'] ?? 0,
                     'total' => $itemData['total'],
+                    'is_custom' => $isCustom,
+                    'custom_name' => $isCustom ? ($itemData['product_name'] ?? $itemData['name'] ?? null) : null,
                     'notes' => $itemData['notes'] ?? null,
                 ]);
             }
@@ -123,17 +133,27 @@ class SalesInvoiceService
 
             // 3. Add new items (This will trigger stock deduction via Observer using NEW warehouse_id)
             foreach ($items as $itemData) {
-                $product = Product::findOrFail($itemData['product_id']);
+                $isCustom = empty($itemData['product_id']);
                 
+                if (!$isCustom) {
+                    $product = Product::findOrFail($itemData['product_id']);
+                    $costPrice = (float)($itemData['cost_price'] ?? $product->current_cost_price);
+                } else {
+                    // Custom Item Profit = 2.5% of total
+                    $costPrice = (float)$itemData['unit_price'] * 0.975;
+                }
+
                 $invoice->items()->create([
-                    'product_id' => $itemData['product_id'],
-                    'product_unit_id' => $itemData['product_unit_id'],
+                    'product_id' => $itemData['product_id'] ?? null,
+                    'product_unit_id' => $itemData['product_unit_id'] ?? null,
                     'quantity' => $itemData['quantity'],
-                    'cost_price' => $itemData['cost_price'] ?? $product->current_cost_price,
+                    'cost_price' => $costPrice,
                     'unit_price' => $itemData['unit_price'],
                     'tax_amount' => $itemData['tax_amount'] ?? 0,
                     'discount_amount' => $itemData['discount_amount'] ?? 0,
                     'total' => $itemData['total'],
+                    'is_custom' => $isCustom,
+                    'custom_name' => $isCustom ? ($itemData['product_name'] ?? $itemData['name'] ?? null) : null,
                 ]);
             }
 

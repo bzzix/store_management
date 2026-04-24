@@ -54,14 +54,17 @@ class InvoiceService
 
             // 2. Add items
             foreach ($items as $item) {
+                $isCustom = empty($item['product_id']);
                 $invoice->items()->create([
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['product_id'] ?? null,
                     'product_unit_id' => $item['unit_id'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'tax_amount' => (float)($item['tax_amount'] ?? 0),
                     'discount_amount' => (float)($item['discount_amount'] ?? 0),
                     'total' => (float)$item['total'],
+                    'is_custom' => $isCustom,
+                    'custom_name' => $isCustom ? ($item['product_name'] ?? $item['name'] ?? null) : null,
                 ]);
 
                 // Update product cost if needed (handled by PurchaseInvoiceObserver if enabled, 
@@ -119,14 +122,17 @@ class InvoiceService
             // Refresh items
             $invoice->items()->delete();
             foreach ($items as $item) {
+                $isCustom = empty($item['product_id']);
                 $invoice->items()->create([
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['product_id'] ?? null,
                     'product_unit_id' => $item['unit_id'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'tax_amount' => (float)($item['tax_amount'] ?? 0),
                     'discount_amount' => (float)($item['discount_amount'] ?? 0),
                     'total' => (float)$item['total'],
+                    'is_custom' => $isCustom,
+                    'custom_name' => $isCustom ? ($item['product_name'] ?? $item['name'] ?? null) : null,
                 ]);
             }
 
@@ -170,6 +176,8 @@ class InvoiceService
     protected function processInventory(PurchaseInvoice $invoice)
     {
         foreach ($invoice->items as $item) {
+            if ($item->is_custom || !$item->product) continue;
+
             $this->inventoryService->addStock(
                 $item->product,
                 $invoice->warehouse,
@@ -209,6 +217,8 @@ class InvoiceService
     protected function reverseInventory(PurchaseInvoice $invoice)
     {
         foreach ($invoice->items as $item) {
+            if ($item->is_custom || !$item->product) continue;
+
             $this->inventoryService->removeStock(
                 $item->product,
                 $invoice->warehouse,

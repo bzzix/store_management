@@ -309,15 +309,23 @@ class PosCenter extends Component
 
         $itemsData = [];
         foreach ($this->items as $item) {
-            $product = Product::find($item['id']);
-            $defaultUnit = $product->units()->where('is_default', true)->first();
+            $productId = $item['id'];
+            $unitId = null;
+            
+            if ($productId) {
+                $product = Product::find($productId);
+                $defaultUnit = $product ? $product->units()->where('is_default', true)->first() : null;
+                $unitId = $defaultUnit?->id;
+            }
             
             $itemsData[] = [
-                'product_id' => $item['id'],
-                'product_unit_id' => $defaultUnit?->id,
+                'product_id' => $productId,
+                'product_unit_id' => $unitId,
+                'product_name' => $item['name'] ?? null, // Pass custom name
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['price'],
                 'total' => $item['total'],
+                'is_custom' => empty($productId),
             ];
         }
 
@@ -351,21 +359,27 @@ class PosCenter extends Component
 
         $itemsData = [];
         foreach ($this->items as $item) {
-            $product = Product::find($item['id']);
-            $defaultUnit = $product->units()->where('is_default', true)->first();
+            $productId = $item['id'];
+            $unitId = null;
+
+            if ($productId) {
+                $product = Product::find($productId);
+                $defaultUnit = $product ? $product->units()->where('is_default', true)->first() : null;
+                $unitId = $defaultUnit?->id;
+            }
 
             $itemsData[] = [
-                'product_id' => $item['id'],
-                'unit_id' => $defaultUnit?->id,
+                'product_id' => $productId,
+                'unit_id' => $unitId,
+                'name' => $item['name'] ?? null, // Pass custom name
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['price'],
                 'total' => $item['total'],
+                'is_custom' => empty($productId),
             ];
         }
 
         return $service->createPurchaseInvoice($invoiceData, $itemsData);
-    }
-
     public function getHistoryTransactionsProperty()
     {
         if ($this->activeTab !== 'history') return collect();
