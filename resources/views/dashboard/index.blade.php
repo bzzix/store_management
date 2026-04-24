@@ -24,7 +24,7 @@
         <div class="relative z-10 flex items-start justify-between">
             <div>
                 <p class="text-surface-500 text-xs font-bold mb-1 uppercase tracking-wider">إجمالي المبيعات</p>
-                <h3 class="text-3xl font-display font-bold text-surface-900 tracking-tight">125,480 <span class="text-sm font-sans text-surface-500">ر.س</span></h3>
+                <h3 class="text-3xl font-display font-bold text-surface-900 tracking-tight">{{ number_format($totalSales, 2) }} <span class="text-sm font-sans text-surface-500">ج.م</span></h3>
             </div>
             <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600">
                 <svg class="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,11 +32,8 @@
                 </svg>
             </div>
         </div>
-        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-secondary-600 bg-secondary-50 w-fit px-2 py-0.5 rounded border border-secondary-100">
-            <svg class="w-3 h-3 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-            </svg>
-            +12% زيادة عن أمس
+        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-surface-500">
+            تمت بفضل الله وتوفيقه.
         </div>
     </div>
 
@@ -46,7 +43,7 @@
         <div class="relative z-10 flex items-start justify-between">
             <div>
                 <p class="text-surface-500 text-xs font-bold mb-1 uppercase tracking-wider">إجمالي المشتريات</p>
-                <h3 class="text-3xl font-display font-bold text-surface-900 tracking-tight">84,200 <span class="text-sm font-sans text-surface-500">ر.س</span></h3>
+                <h3 class="text-3xl font-display font-bold text-surface-900 tracking-tight">{{ number_format($totalPurchases, 2) }} <span class="text-sm font-sans text-surface-500">ج.م</span></h3>
             </div>
             <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
                 <svg class="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +52,7 @@
             </div>
         </div>
         <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-surface-500">
-            <span class="text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-display">5</span> فواتير جديدة اليوم
+            <span class="text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-display">{{ $todayPurchasesCount }}</span> فواتير مشتريات جديدة اليوم
         </div>
     </div>
 
@@ -65,7 +62,7 @@
         <div class="relative z-10 flex items-start justify-between">
             <div>
                 <p class="text-surface-500 text-xs font-bold mb-1 uppercase tracking-wider">صافي الأرباح</p>
-                <h3 class="text-3xl font-display font-bold text-secondary-600 tracking-tight">41,280 <span class="text-sm font-sans text-surface-400">ر.س</span></h3>
+                <h3 class="text-3xl font-display font-bold text-secondary-600 tracking-tight">{{ number_format($netProfit, 2) }} <span class="text-sm font-sans text-surface-400">ج.م</span></h3>
             </div>
             <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
                 <svg class="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,11 +70,8 @@
                 </svg>
             </div>
         </div>
-        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 w-fit px-2 py-0.5 rounded border border-red-100">
-            <svg class="w-3 h-3 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path>
-            </svg>
-            -2% اليوم
+        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-surface-500">
+            صافي الأرباح من المبيعات المكتملة
         </div>
     </div>
 
@@ -87,7 +81,7 @@
         <div class="relative z-10 flex items-start justify-between">
             <div>
                 <p class="text-surface-400 text-xs font-bold mb-1 uppercase tracking-wider">أصناف منخفضة المخزون</p>
-                <h3 class="text-3xl font-display font-bold text-white tracking-tight">14</h3>
+                <h3 class="text-3xl font-display font-bold text-white tracking-tight">{{ $lowStockCount }}</h3>
             </div>
             <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/10">
                 <svg class="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,12 +90,12 @@
             </div>
         </div>
         <div class="mt-4">
-            <button class="text-xs font-bold text-primary-400 hover:text-primary-300 flex items-center gap-1 transition-colors group">
+            <a href="{{ route('dashboard.products.index') }}" class="text-xs font-bold text-primary-400 hover:text-primary-300 flex items-center gap-1 transition-colors group">
                 عرض الأصناف المهددة بالنفاد
                 <svg class="w-3 h-3 stroke-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-            </button>
+            </a>
         </div>
     </div>
 </div>
@@ -115,7 +109,7 @@
                 <h3 class="text-lg font-bold text-surface-900">أحدث فواتير المبيعات</h3>
                 <p class="text-sm text-surface-500 mt-1">قائمة بآخر العمليات التي تمت في المتجر.</p>
             </div>
-            <button class="bg-surface-50 hover:bg-surface-100 text-surface-600 px-3 py-1.5 rounded-lg text-sm font-bold border border-surface-200 transition-colors">تصدير تقرير</button>
+            <a href="{{ route('dashboard.sales.index') }}" class="bg-surface-50 hover:bg-surface-100 text-surface-600 px-3 py-1.5 rounded-lg text-sm font-bold border border-surface-200 transition-colors">عرض الكل</a>
         </div>
         <div class="p-0 overflow-x-auto flex-1">
             <table class="w-full text-sm text-right whitespace-nowrap">
@@ -129,30 +123,44 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-surface-100">
+                    @forelse($latestSales as $invoice)
                     <tr class="hover:bg-surface-50/50 transition-colors">
                         <td class="px-6 py-4">
-                            <p class="font-bold text-surface-900">INV-2023-001</p>
-                            <p class="text-xs text-surface-500 mt-0.5">مبيعات نقدية</p>
+                            <p class="font-bold text-surface-900">{{ $invoice->invoice_number }}</p>
+                            <p class="text-xs text-surface-500 mt-0.5">{{ $invoice->saleMethod?->name ?? 'مبيعات نقدية' }}</p>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-bold text-[10px] flex items-center justify-center">ع.م</div>
-                                <span class="font-medium text-surface-700">علي محمود</span>
+                                <div class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-bold text-[10px] flex items-center justify-center">
+                                    {{ mb_substr($invoice->customer?->name ?? 'ع', 0, 1) }}
+                                </div>
+                                <span class="font-medium text-surface-700">{{ $invoice->customer?->name ?? 'عميل نقدي' }}</span>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="font-display font-medium text-surface-600 bg-surface-50 px-2 py-1 rounded">04:00 PM</span>
+                            <span class="font-display font-medium text-surface-600 bg-surface-50 px-2 py-1 rounded">{{ $invoice->created_at->format('h:i A') }}</span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="font-display font-bold text-surface-900">1,250.00</span>
-                                <span class="text-[10px] text-surface-400">ر.س</span>
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="font-display font-bold text-surface-900">{{ number_format($invoice->total_amount, 2) }}</span>
+                                <span class="text-[10px] text-surface-400">ج.م</span>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="bg-secondary-50 text-secondary-700 border border-secondary-200 text-xs font-bold px-2 py-1 rounded min-w-[80px] text-center inline-block">مدفوعة</span>
+                            @if($invoice->status == 'completed')
+                                <span class="bg-secondary-50 text-secondary-700 border border-secondary-200 text-xs font-bold px-2 py-1 rounded min-w-[80px] text-center inline-block">مكتملة</span>
+                            @elseif($invoice->status == 'draft')
+                                <span class="bg-surface-100 text-surface-700 border border-surface-200 text-xs font-bold px-2 py-1 rounded min-w-[80px] text-center inline-block">مسودة</span>
+                            @else
+                                <span class="bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold px-2 py-1 rounded min-w-[80px] text-center inline-block">{{ $invoice->status }}</span>
+                            @endif
                         </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-surface-500 font-medium">لا توجد فواتير مبيعات بعد.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -178,30 +186,30 @@
             </div>
             <hr class="border-surface-100 my-2">
             <div class="grid grid-cols-2 gap-3">
-                <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-surface-200 bg-surface-50 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700 transition-all group">
+                <a href="{{ route('dashboard.products.index') }}" class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-surface-200 bg-surface-50 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700 transition-all group">
                     <span class="bg-white p-2 rounded-lg shadow-sm text-surface-500 group-hover:text-primary-600 group-hover:shadow-primary-500/10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                         </svg>
                     </span>
-                    <span class="text-xs font-bold">منتج جديد</span>
-                </button>
-                <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-surface-200 bg-surface-50 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 transition-all group">
+                    <span class="text-xs font-bold">إدارة المنتجات</span>
+                </a>
+                <a href="{{ route('dashboard.suppliers.index') }}" class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-surface-200 bg-surface-50 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 transition-all group">
                     <span class="bg-white p-2 rounded-lg shadow-sm text-surface-500 group-hover:text-orange-600 group-hover:shadow-orange-500/10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
                     </span>
-                    <span class="text-xs font-bold">مورد جديد</span>
-                </button>
-                <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-surface-200 bg-surface-50 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-all group col-span-2">
+                    <span class="text-xs font-bold">إدارة الموردين</span>
+                </a>
+                <a href="{{ route('dashboard.pos') }}" class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-surface-200 bg-surface-50 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-all group col-span-2">
                     <span class="bg-white p-2 rounded-lg shadow-sm text-surface-500 group-hover:text-purple-600 group-hover:shadow-purple-500/10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
                     </span>
-                    <span class="text-xs font-bold">إضافة شريحة تسعير</span>
-                </button>
+                    <span class="text-xs font-bold">فتح نقطة البيع POS</span>
+                </a>
             </div>
         </div>
     </div>

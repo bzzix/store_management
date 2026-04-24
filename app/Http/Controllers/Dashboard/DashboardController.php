@@ -65,10 +65,35 @@ class DashboardController extends Controller
             site_name: get_setting('appName', 'أولاد عبد الستار'),
             image: get_setting('appLogo'),
         );
+
+        $today = \Carbon\Carbon::today();
+
+        $totalSales = \App\Models\SaleInvoice::where('status', '!=', 'cancelled')->sum('total_amount');
+        $totalPurchases = \App\Models\PurchaseInvoice::where('status', '!=', 'cancelled')->sum('total_amount');
+        
+        $netProfit = \App\Models\SaleInvoice::where('status', 'completed')
+                        ->selectRaw('SUM(subtotal - total_cost) as profit')
+                        ->value('profit') ?? 0;
+                        
+        $lowStockCount = \App\Models\Product::lowStock()->count();
+
+        $latestSales = \App\Models\SaleInvoice::with(['customer', 'user', 'saleMethod'])
+                            ->orderBy('created_at', 'desc')
+                            ->take(5)
+                            ->get();
+                            
+        $todayPurchasesCount = \App\Models\PurchaseInvoice::whereDate('created_at', $today)->count();
+
         return view('dashboard.index', compact(
             'title',
             'SEOData',
-            'pageType'
+            'pageType',
+            'totalSales',
+            'totalPurchases',
+            'netProfit',
+            'lowStockCount',
+            'latestSales',
+            'todayPurchasesCount'
         ));
     }
 
